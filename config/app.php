@@ -185,6 +185,8 @@ return [
         App\Providers\AuthServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         Laravel\Tinker\TinkerServiceProvider::class,
+        
+        Dingo\Api\Provider\LaravelServiceProvider::class,
 
         Modules\Core\Providers\AsgardServiceProvider::class,
 

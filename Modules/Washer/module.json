@@ -1,0 +1,17 @@
+{
+    "name": "Washer",
+    "alias": "washer",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 1,
+    "providers": [
+        "Modules\\Washer\\Providers\\WasherServiceProvider",
+        "Modules\\Washer\\Providers\\RouteServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        
+    ],
+    "requires": []
+}
