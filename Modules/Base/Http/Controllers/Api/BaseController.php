@@ -8,7 +8,6 @@ use InvalidArgumentException;
 use Modules\User\Entities\Sentinel\User;
 use Dingo\Api\Routing\Helpers;
 use Validator;
-use App\Exceptions\ErrorValidationException;
 use App\Common\Helper;
 
 class BaseController extends Controller

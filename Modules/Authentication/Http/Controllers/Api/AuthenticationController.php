@@ -15,6 +15,7 @@ use Hash;
 use Modules\Authentication\Entities\WasherCustomerLogin;
 use Illuminate\Support\Facades\Password;
 use Modules\Authentication\Repositories\WasherCustomerLoginRepository;
+use Modules\Customer\Repositories\CustomerRepository;
 
 class AuthenticationController extends BaseController
 {
@@ -22,12 +23,14 @@ class AuthenticationController extends BaseController
             
     public function __construct(Request $request,  
             WasherRepository $washerRepository,
+            CustomerRepository $customerRepository,
             WasherCustomerLoginRepository $washerCustomerLoginRepository,
             WasherTransformerInterface $washerTransformerInterface)
     {
         
         $this->request = $request;
         $this->washer_repository = $washerRepository; 
+        $this->customer_repository = $customerRepository;
         $this->washer_transformer = $washerTransformerInterface;
         $this->washer_customer_login_repository = $washerCustomerLoginRepository;
     }
@@ -72,6 +75,22 @@ class AuthenticationController extends BaseController
             if ($validateCustomer !== true) {
                 return $validateCustomer;
             }
+            
+            // Successfull validated data, start to create new washer
+            $createdCustomer = $this->customer_repository->create([
+                'email' => $input['email'],
+                'password' => Hash::make($input['password']),
+                'full_name' => $input['full_name'],
+                'phone_number' => $input['phone_number'],                      
+                'type' => WasherCustomerLogin::CUSTOMER_TYPE
+            ]);
+            
+            $token  = Password::getRepository()->createNewToken();
+            $this->washer_customer_login_repository->saveTokenLogin($createdWasher, $token, WasherCustomerLogin::WASHER_TYPE);
+            
+            $washerReturned = $this->washer_repository->find($createdWasher->id);
+            $washerReturned->token = $token;
+            return $this->response->item($washerReturned, $this->washer_transformer);
         }
         
         $user = User::findOrFail(1);
