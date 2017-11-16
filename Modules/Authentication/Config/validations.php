@@ -41,4 +41,14 @@ return [
         ]
     ],
     
+    'api-check-login' => [
+        'rules' => [
+            'email' => 'required|email',
+            'password' => 'required'
+        ],
+        'messages' => [
+
+        ]
+    ],
+    
 ];

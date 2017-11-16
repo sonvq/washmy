@@ -11,11 +11,13 @@ use Modules\Base\Http\Controllers\Api\BaseController;
 use Illuminate\Http\Request;
 use Modules\Washer\Repositories\WasherRepository;
 use Modules\Washer\Transformers\WasherTransformerInterface;
+use Modules\Customer\Transformers\CustomerTransformerInterface;
 use Hash;
 use Modules\Authentication\Entities\WasherCustomerLogin;
 use Illuminate\Support\Facades\Password;
 use Modules\Authentication\Repositories\WasherCustomerLoginRepository;
 use Modules\Customer\Repositories\CustomerRepository;
+use App\Common\Helper;
 
 class AuthenticationController extends BaseController
 {
@@ -25,7 +27,8 @@ class AuthenticationController extends BaseController
             WasherRepository $washerRepository,
             CustomerRepository $customerRepository,
             WasherCustomerLoginRepository $washerCustomerLoginRepository,
-            WasherTransformerInterface $washerTransformerInterface)
+            WasherTransformerInterface $washerTransformerInterface,
+            CustomerTransformerInterface $customerTransformerInterface)
     {
         
         $this->request = $request;
@@ -33,6 +36,7 @@ class AuthenticationController extends BaseController
         $this->customer_repository = $customerRepository;
         $this->washer_transformer = $washerTransformerInterface;
         $this->washer_customer_login_repository = $washerCustomerLoginRepository;
+        $this->customer_transformer = $customerTransformerInterface;
     }
     
     public function register()
@@ -89,8 +93,62 @@ class AuthenticationController extends BaseController
             $this->washer_customer_login_repository->saveTokenLogin($createdCustomer, $token, WasherCustomerLogin::CUSTOMER_TYPE);
             
             $customerReturned = $this->customer_repository->find($createdCustomer->id);
-            $washerReturned->token = $token;
-            return $this->response->item($washerReturned, $this->washer_transformer);
+            $customerReturned->token = $token;
+            return $this->response->item($customerReturned, $this->customer_transformer);
         }       
+    }
+    
+    public function login()
+    {
+        $input = $this->request->all();
+        
+        // Validate login
+        $validateType = $this->validateRequest('api-check-login', $input);
+        if ($validateType !== true) {
+            return $validateType;
+        }                
+                
+        $token  = Password::getRepository()->createNewToken();
+        
+        $emailAddress = $input['email'];
+        $washerObject = $this->washer_repository->findByAttributes(['email' => $emailAddress]);
+        
+        if ($washerObject) {
+            if (Hash::check($input['password'], $washerObject->password)) {
+                $this->washer_customer_login_repository->saveTokenLogin(
+                        $washerObject, 
+                        $token, 
+                        WasherCustomerLogin::WASHER_TYPE);
+                
+                $this->washer_repository->update($this->washer_repository->findByAttributes(['email' => $emailAddress]), [
+                    'first_time_login' => 0,
+                ]);
+                
+                $washerObject->token = $token;
+                return $this->response->item($washerObject, $this->washer_transformer);
+            } else {
+                return Helper::unauthorizedErrorResponse();
+            }
+        } else {
+            $customerObject = $this->customer_repository->findByAttributes(['email' => $emailAddress]);
+            if ($customerObject) {
+                if (Hash::check($input['password'], $customerObject->password)) {
+                    $this->washer_customer_login_repository->saveTokenLogin(
+                            $customerObject, 
+                            $token, 
+                            WasherCustomerLogin::CUSTOMER_TYPE);
+                    
+                    $this->customer_repository->update($this->customer_repository->findByAttributes(['email' => $emailAddress]), [
+                        'first_time_login' => 0,
+                    ]);
+                    $customerObject->token = $token;
+                    return $this->response->item($customerObject, $this->customer_transformer);
+                } else {
+                    return Helper::unauthorizedErrorResponse();
+                }
+            }else{
+                return Helper::unauthorizedErrorResponse();
+            }
+        }
     }
 }

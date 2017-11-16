@@ -61,7 +61,8 @@ class WasherServiceProvider extends ServiceProvider
         );
 // add bindings
         $this->app->bind(
-            'Modules\Washer\Transformers\WasherTransformerInterface', "Modules\\Washer\\Transformers\\WasherTransformer"
+            'Modules\Washer\Transformers\WasherTransformerInterface', 
+            "Modules\\Washer\\Transformers\\WasherTransformer"
         );
     }
 }

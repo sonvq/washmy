@@ -25,10 +25,11 @@ class Helper {
     const UNPROCESSABLE_ENTITY_MSG = 'The given data failed to pass validation';
     
     const USER_NOT_FOUND = 'USER_NOT_FOUND';
-    
-    const WRONG_CREDENTIAL = 'WRONG_CREDENTIAL';    
+     
     
     const UNAUTHORIZED = 'UNAUTHORIZED';
+    const UNAUTHORIZED_TITLE = 'Wrong credentials';
+    const UNAUTHORIZED_MSG = 'Invalid email or password';
     
     const INVALID_TOKEN = 'INVALID_TOKEN';     
 
@@ -110,13 +111,33 @@ class Helper {
         $validationArray['first_error'] = $messageArray[0];
         $validationArray['details'] = $errorsMessage;        
         
-        return response()->json(Helper::responseFormat(Helper::UNPROCESSABLE_ENTITY, $validationArray, null, true, 422), 422);
+        return Helper::responseFormat(Helper::UNPROCESSABLE_ENTITY, $validationArray, null, true, 422);
     }
+    
+    public static function unauthorizedErrorResponse () {
+        return Helper::commonErrorResponse(Helper::UNAUTHORIZED, Helper::UNAUTHORIZED_TITLE, Helper::UNAUTHORIZED_MSG, 401);
+    }
+
+
+    public static function commonErrorResponse (
+            $messageKey = null, 
+            $messageTitle = null, 
+            $messageContent = null,
+            $statusCode = null) {
+               
+        $errorsMessage = [];
+        $errorsMessage['title'] = $messageTitle;
+        $errorsMessage['first_error'] = $messageContent;
+        $errorsMessage['details'] = null;       
+        
+         return Helper::responseFormat($messageKey, $errorsMessage, null, true, $statusCode);         
+    }
+
 
     public static function responseFormat($messageKey = null, 
             $errorsMessage = null, $data = null, $hasError = null, $statusCode = null) {
         
-        return [
+        $result = [
             'message_key' => $messageKey,
             'error_message' => $errorsMessage,
             'data' => $data,
@@ -124,6 +145,8 @@ class Helper {
             'status_code' => $statusCode,
             'server_time' => time(),
         ];
+        
+        return response()->json($result, $statusCode);
     }
 
 

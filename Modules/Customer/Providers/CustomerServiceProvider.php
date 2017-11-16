@@ -60,6 +60,9 @@ class CustomerServiceProvider extends ServiceProvider
             }
         );
 // add bindings
-
+        $this->app->bind(
+            'Modules\Customer\Transformers\CustomerTransformerInterface', 
+            "Modules\\Customer\\Transformers\\CustomerTransformer"
+        );
     }
 }
