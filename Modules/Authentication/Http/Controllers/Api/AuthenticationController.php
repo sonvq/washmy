@@ -63,7 +63,7 @@ class AuthenticationController extends BaseController
                 'type' => WasherCustomerLogin::WASHER_TYPE
             ]);
             
-            $token  = Password::getRepository()->createNewToken();
+            $token = Password::getRepository()->createNewToken();
             $this->washer_customer_login_repository->saveTokenLogin($createdWasher, $token, WasherCustomerLogin::WASHER_TYPE);
             
             $washerReturned = $this->washer_repository->find($createdWasher->id);
@@ -85,16 +85,12 @@ class AuthenticationController extends BaseController
                 'type' => WasherCustomerLogin::CUSTOMER_TYPE
             ]);
             
-            $token  = Password::getRepository()->createNewToken();
-            $this->washer_customer_login_repository->saveTokenLogin($createdWasher, $token, WasherCustomerLogin::WASHER_TYPE);
+            $token = Password::getRepository()->createNewToken();
+            $this->washer_customer_login_repository->saveTokenLogin($createdCustomer, $token, WasherCustomerLogin::CUSTOMER_TYPE);
             
-            $washerReturned = $this->washer_repository->find($createdWasher->id);
+            $customerReturned = $this->customer_repository->find($createdCustomer->id);
             $washerReturned->token = $token;
             return $this->response->item($washerReturned, $this->washer_transformer);
-        }
-        
-        $user = User::findOrFail(1);
-
-		return $this->response->array($user->toArray());
+        }       
     }
 }
