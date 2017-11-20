@@ -17,38 +17,37 @@ use Modules\Media\Events\FileWasUploaded;
 use Modules\Authentication\Entities\WasherCustomerLogin;
 
 class Helper {
-
-    const NOT_FOUND = 'NOT_FOUND';
-    const NOT_FOUND_MSG = 'Resource not found';
     
     const UNPROCESSABLE_ENTITY = 'UNPROCESSABLE_ENTITY';     
-    const UNPROCESSABLE_ENTITY_MSG = 'The given data failed to pass validation';
+    const UNPROCESSABLE_ENTITY_MSG = 'The given data failed to pass validation';     
     
-    const USER_NOT_FOUND = 'USER_NOT_FOUND';
-     
+    const LOGIN_FAIL = 'LOGIN_FAIL';
+    const LOGIN_FAIL_TITLE = 'Wrong credentials';
+    const LOGIN_FAIL_MSG = 'Invalid email or password';
     
-    const UNAUTHORIZED = 'UNAUTHORIZED';
-    const UNAUTHORIZED_TITLE = 'Wrong credentials';
-    const UNAUTHORIZED_MSG = 'Invalid email or password';
+    const MISSING_TOKEN = 'MISSING_TOKEN';
+    const MISSING_TOKEN_TITLE = 'Missing token';
+    const MISSING_TOKEN_MSG = 'Token is not provided';
     
-    const INVALID_TOKEN = 'INVALID_TOKEN';     
+    const INVALID_TOKEN = 'INVALID_TOKEN';  
+    const INVALID_TOKEN_TITLE = 'Invalid token';     
+    const INVALID_TOKEN_MSG = 'The given token is invalid';
 
-    const PERMISSION_DENIED = 'PERMISSION_DENIED';
+    const USER_NOT_FOUND = 'USER_NOT_FOUND';  
+    const USER_NOT_FOUND_TITLE = 'User not found';     
+    const USER_NOT_FOUND_MSG = 'User does not exist or has been deleted';
     
-    const ONLY_CUSTOMER_ROLE_ALLOWED = 'ONLY_CUSTOMER_ROLE_ALLOWED';
-    
-    const ONLY_WASHER_ROLE_ALLOWED = 'ONLY_AGENT_ROLE_ALLOWED';
-       
-    const INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR';  
 
     public static function getLoggedUser($platform = null) {
         $persistence_code = request()->header('USER-TOKEN');
 
-        $washerCustomerLoginObject = WasherCustomerLogin::where('token', $persistence_code)->first();
-        if(!empty($washerCustomerLoginObject)) {
-            $washerCustomerLoginObject->customer;
-            $washerCustomerLoginObject->washer;
-            return $washerCustomerLoginObject;
+        if (!empty($persistence_code)) {
+            $washerCustomerLoginObject = WasherCustomerLogin::where('token', $persistence_code)->first();
+            if(!empty($washerCustomerLoginObject)) {
+                $washerCustomerLoginObject->customer;
+                $washerCustomerLoginObject->washer;
+                return $washerCustomerLoginObject;
+            }
         }
         return null;        
     }
@@ -114,8 +113,8 @@ class Helper {
         return Helper::responseFormat(Helper::UNPROCESSABLE_ENTITY, $validationArray, null, true, 422);
     }
     
-    public static function unauthorizedErrorResponse () {
-        return Helper::commonErrorResponse(Helper::UNAUTHORIZED, Helper::UNAUTHORIZED_TITLE, Helper::UNAUTHORIZED_MSG, 401);
+    public static function unauthorizedErrorResponse ($key, $title, $message) {
+        return Helper::commonErrorResponse($key, $title, $message, 401);
     }
 
 

@@ -11,5 +11,5 @@ interface WasherCustomerLoginRepository extends BaseRepository
      * @param $token
      * @param $type
      */
-    public function saveTokenLogin($object, $token, $type);
+    public function saveTokenLogin($object, $token);
 }

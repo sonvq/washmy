@@ -3,6 +3,8 @@
 namespace Modules\Authentication\Entities;
 
 use Illuminate\Database\Eloquent\Model;
+use Modules\Customer\Entities\Customer;
+use Modules\Washer\Entities\Washer;
 
 class WasherCustomerLogin extends Model
 {
@@ -17,4 +19,12 @@ class WasherCustomerLogin extends Model
         'token',
         'type'
     ];
+    
+    public function customer () {
+        return $this->hasOne(Customer::class, 'id', 'customer_id');
+    }
+    
+    public function washer () {
+        return $this->hasOne(Washer::class, 'id', 'washer_id');
+    }
 }

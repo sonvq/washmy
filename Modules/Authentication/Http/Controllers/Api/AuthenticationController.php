@@ -68,7 +68,7 @@ class AuthenticationController extends BaseController
             ]);
             
             $token = Password::getRepository()->createNewToken();
-            $this->washer_customer_login_repository->saveTokenLogin($createdWasher, $token, WasherCustomerLogin::WASHER_TYPE);
+            $this->washer_customer_login_repository->saveTokenLogin($createdWasher, $token);
             
             $washerReturned = $this->washer_repository->find($createdWasher->id);
             $washerReturned->token = $token;
@@ -90,7 +90,7 @@ class AuthenticationController extends BaseController
             ]);
             
             $token = Password::getRepository()->createNewToken();
-            $this->washer_customer_login_repository->saveTokenLogin($createdCustomer, $token, WasherCustomerLogin::CUSTOMER_TYPE);
+            $this->washer_customer_login_repository->saveTokenLogin($createdCustomer, $token);
             
             $customerReturned = $this->customer_repository->find($createdCustomer->id);
             $customerReturned->token = $token;
@@ -101,6 +101,8 @@ class AuthenticationController extends BaseController
     public function login()
     {
         $input = $this->request->all();
+        $clientDeviceToken = $this->request->header('DEVICE-TOKEN');
+        $clientOS = $this->request->header('DEVICE-TYPE');
         
         // Validate login
         $validateType = $this->validateRequest('api-check-login', $input);
@@ -115,40 +117,64 @@ class AuthenticationController extends BaseController
         
         if ($washerObject) {
             if (Hash::check($input['password'], $washerObject->password)) {
-                $this->washer_customer_login_repository->saveTokenLogin(
-                        $washerObject, 
-                        $token, 
-                        WasherCustomerLogin::WASHER_TYPE);
+                $this->washer_customer_login_repository->saveTokenLogin($washerObject, $token);
                 
                 $this->washer_repository->update($this->washer_repository->findByAttributes(['email' => $emailAddress]), [
                     'first_time_login' => 0,
                 ]);
                 
                 $washerObject->token = $token;
+                
+                if (!empty($clientDeviceToken)) {
+                    $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $washerObject);
+                }
+
                 return $this->response->item($washerObject, $this->washer_transformer);
             } else {
-                return Helper::unauthorizedErrorResponse();
+                return Helper::unauthorizedErrorResponse(Helper::LOGIN_FAIL,
+                        Helper::LOGIN_FAIL_TITLE,
+                        Helper::LOGIN_FAIL_MSG);
             }
         } else {
             $customerObject = $this->customer_repository->findByAttributes(['email' => $emailAddress]);
             if ($customerObject) {
                 if (Hash::check($input['password'], $customerObject->password)) {
-                    $this->washer_customer_login_repository->saveTokenLogin(
-                            $customerObject, 
-                            $token, 
-                            WasherCustomerLogin::CUSTOMER_TYPE);
+                    $this->washer_customer_login_repository->saveTokenLogin($customerObject, $token);
                     
                     $this->customer_repository->update($this->customer_repository->findByAttributes(['email' => $emailAddress]), [
                         'first_time_login' => 0,
                     ]);
                     $customerObject->token = $token;
+                    
+                    if (!empty($clientDeviceToken)) {
+                        $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $customerObject);
+                    }
+                
                     return $this->response->item($customerObject, $this->customer_transformer);
                 } else {
-                    return Helper::unauthorizedErrorResponse();
+                    return Helper::unauthorizedErrorResponse(Helper::LOGIN_FAIL,
+                        Helper::LOGIN_FAIL_TITLE,
+                        Helper::LOGIN_FAIL_MSG);
                 }
             }else{
-                return Helper::unauthorizedErrorResponse();
+                return Helper::unauthorizedErrorResponse(Helper::LOGIN_FAIL,
+                        Helper::LOGIN_FAIL_TITLE,
+                        Helper::LOGIN_FAIL_MSG);
             }
         }
     }
+    
+    public function logout() {
+        $currentLoggedUser = Helper::getLoggedUser();
+        if (!$currentLoggedUser) {
+            return Helper::unauthorizedErrorResponse(Helper::USER_NOT_FOUND,
+                    Helper::USER_NOT_FOUND_TITLE,
+                    Helper::USER_NOT_FOUND_MSG);
+        }           
+        $currentLoggedUser->delete();
+        
+        return $this->response->array(['data' => trans('authentication::messages.SUCCESSFUL_LOGOUT')]);
+    }
+
 }
+
