@@ -9,6 +9,9 @@ use Modules\User\Entities\Sentinel\User;
 use Dingo\Api\Routing\Helpers;
 use Validator;
 use App\Common\Helper;
+use OneSignal;
+use Modules\Authentication\Repositories\Eloquent\EloquentWasherCustomerDeviceRepository;
+use Modules\Authentication\Entities\WasherCustomerDevice;
 
 class BaseController extends Controller
 {
@@ -31,46 +34,58 @@ class BaseController extends Controller
     }
     
     public function storeUserDeviceInfo($clientDeviceToken, $clientOS, $object) {
+        
         if (!empty($clientDeviceToken) && !empty($clientOS)) {
             $arraySupportedDevicePush = config('onesignal.supported_devices');
-            
-            /*
-             * Create new player id in one signal
-             */
-            try {
-                $parametersPlayer = [
-                    'device_type' => $arraySupportedDevicePush[$clientOS],
-                    'identifier' => $clientDeviceToken
-                ];
-                
-                $playerResponse = OneSignalExtra::createPlayer($parametersPlayer);
 
-                $playerResponseObject = Helper::getReadableResponseFromGuzzle($playerResponse);
-                
-                if (isset($playerResponseObject->success) && $playerResponseObject->success == true) {
-                    // Successfully create new player
-                    $playerId = $playerResponseObject->id;
-                    
-                    $customerDeviceEloquent = new EloquentCustomerDeviceRepository();
-                    $existingCustomerDevice = $customerDeviceEloquent->findOneByAttribute(array('strPlayerID' => $playerId));
-                    if (!$existingCustomerDevice) {
-                        $customerDevice = [
-                            'strPlayerID' => $playerId,
-                            'strDeviceToken' => $clientDeviceToken,
-                            'strDeviceType' => $clientOS
-                        ];
+            if (in_array($clientOS, array_keys($arraySupportedDevicePush))) {
+                /*
+                 * Create new player id in one signal
+                 */
+                try {
+                    $parametersPlayer = [
+                        'device_type' => $arraySupportedDevicePush[$clientOS],
+                        'identifier' => $clientDeviceToken
+                    ];
 
-                        $savedDevice = $customerDeviceEloquent->create($customerDevice);
-                    } else {
-                        // Update the existing one with the logged in user id
-                        $existingCustomerDevice->strUserID = $user->email;
-                        $existingCustomerDevice->save();
-                    }    
-                }
-            } catch (\Exception $e) {
-                \Log::error('Store user device token error: ' . $e->getMessage());
-                // echo $e->getMessage();
-            }            
+                    $playerResponse = OneSignal::createPlayer($parametersPlayer);
+
+                    $playerResponseObject = Helper::getReadableResponseFromGuzzle($playerResponse);
+
+                    if (isset($playerResponseObject->success) && $playerResponseObject->success == true) {
+                        // Successfully create new player
+                        $playerId = $playerResponseObject->id;
+
+                        $deviceEloquent = new EloquentWasherCustomerDeviceRepository(new WasherCustomerDevice());
+                        $existingDevice = $deviceEloquent->findByAttributes(array('player_id' => $playerId));
+                        if (!$existingDevice) {
+                            $customerDevice = [
+                                'player_id' => $playerId,
+                                'device_token' => $clientDeviceToken,
+                                'device_type' => $clientOS
+                            ];
+                            if (!empty($object)) {
+                                $key = $object->type . '_id';
+                                $customerDevice[$key] = $object->id;
+                                $customerDevice['type'] = $object->type;
+                            }
+
+                            $savedDevice = $deviceEloquent->create($customerDevice);
+                        } else {
+                            if (!empty($object)) {
+                                $key = $object->type . '_id';
+                                // Update the existing one with the logged in user id
+                                $existingDevice->$key = $object->id;
+                                $existingDevice->type = $object->type;
+                                $existingDevice->save();
+                            }
+                        }    
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Store user device token error: ' . $e->getMessage());
+                    // echo $e->getMessage();
+                }       
+            }
         }
     }
 }

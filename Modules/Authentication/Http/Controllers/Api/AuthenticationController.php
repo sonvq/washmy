@@ -42,6 +42,8 @@ class AuthenticationController extends BaseController
     public function register()
     {
         $input =  $this->request->all();        
+        $clientDeviceToken = $this->request->header('DEVICE-TOKEN');
+        $clientOS = $this->request->header('DEVICE-TYPE');
         
         // Validate type customer or washer
         $validateType = $this->validateRequest('api-check-type-register', $input);
@@ -71,6 +73,11 @@ class AuthenticationController extends BaseController
             $this->washer_customer_login_repository->saveTokenLogin($createdWasher, $token);
             
             $washerReturned = $this->washer_repository->find($createdWasher->id);
+            
+            if (!empty($clientDeviceToken) && !empty($clientOS)) {
+                $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $washerReturned);
+            }
+            
             $washerReturned->token = $token;
             return $this->response->item($washerReturned, $this->washer_transformer);
         } else {
@@ -93,6 +100,11 @@ class AuthenticationController extends BaseController
             $this->washer_customer_login_repository->saveTokenLogin($createdCustomer, $token);
             
             $customerReturned = $this->customer_repository->find($createdCustomer->id);
+            
+            if (!empty($clientDeviceToken) && !empty($clientOS)) {
+                $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $customerReturned);
+            }
+            
             $customerReturned->token = $token;
             return $this->response->item($customerReturned, $this->customer_transformer);
         }       
@@ -125,7 +137,7 @@ class AuthenticationController extends BaseController
                 
                 $washerObject->token = $token;
                 
-                if (!empty($clientDeviceToken)) {
+                if (!empty($clientDeviceToken) && !empty($clientOS)) {
                     $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $washerObject);
                 }
 
@@ -146,7 +158,7 @@ class AuthenticationController extends BaseController
                     ]);
                     $customerObject->token = $token;
                     
-                    if (!empty($clientDeviceToken)) {
+                    if (!empty($clientDeviceToken) && !empty($clientOS)) {
                         $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $customerObject);
                     }
                 

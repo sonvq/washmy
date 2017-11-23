@@ -148,6 +148,9 @@ class Helper {
         return response()->json($result, $statusCode);
     }
 
+    public static function getReadableResponseFromGuzzle($response) {
+        return json_decode($response->getBody()->__toString());
+    }
 
     
   
