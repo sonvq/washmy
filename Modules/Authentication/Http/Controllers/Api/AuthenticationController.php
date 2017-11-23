@@ -183,10 +183,18 @@ class AuthenticationController extends BaseController
                     Helper::USER_NOT_FOUND_TITLE,
                     Helper::USER_NOT_FOUND_MSG);
         }           
-        $currentLoggedUser->delete();
+        
+        $clientDeviceToken = $this->request->header('DEVICE-TOKEN');
+        $clientOS = $this->request->header('DEVICE-TYPE');
+        if (!empty($clientDeviceToken) && !empty($clientOS)) {
+            $this->removeUserDeviceInfo($clientDeviceToken, $clientOS, $currentLoggedUser);
+        }
+        
+        $currentLoggedUser->delete();                
         
         return $this->response->array(['data' => trans('authentication::messages.SUCCESSFUL_LOGOUT')]);
-    }
+    }           
+
 
 }
 

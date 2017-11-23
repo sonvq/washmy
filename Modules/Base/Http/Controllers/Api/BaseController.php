@@ -88,4 +88,22 @@ class BaseController extends Controller
             }
         }
     }
+    
+    protected function removeUserDeviceInfo($clientDeviceToken, $clientOS, $currentLoggedUser) {
+        
+        if (!empty($clientDeviceToken) && !empty($clientOS)) {
+            $deviceEloquent = new EloquentWasherCustomerDeviceRepository(new WasherCustomerDevice());
+        
+            $key = $currentLoggedUser->type . '_id';
+            $existingDevice = $deviceEloquent->findByAttributes(array(
+                'device_token' => $clientDeviceToken, 
+                'device_type' => $clientOS,
+                $key => $currentLoggedUser->$key,
+                'type' => $currentLoggedUser->type));
+            
+            if ($existingDevice) {
+                $existingDevice->delete();
+            }
+        }
+    }
 }
