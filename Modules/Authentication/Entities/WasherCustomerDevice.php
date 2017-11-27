@@ -12,7 +12,6 @@ class WasherCustomerDevice extends Model
     const WASHER_TYPE = 'washer';
     const CUSTOMER_TYPE = 'customer';
     protected $table = 'devices';
-    public $translatedAttributes = [];
     protected $fillable = [
         'washer_id',
         'customer_id',

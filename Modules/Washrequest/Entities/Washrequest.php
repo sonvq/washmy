@@ -8,5 +8,15 @@ class Washrequest extends Model
 {
 
     protected $table = 'washrequest__washrequests';
-    protected $fillable = [];
+    protected $fillable = [
+        'type',
+        'car_plate_no',
+        'car_color',
+        'street_name',
+        'block_no',
+        'level',
+        'car_park_lot_no',
+        'notes'
+    ];
+    
 }

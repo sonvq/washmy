@@ -4,10 +4,10 @@ namespace Modules\Customer\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Customer extends Model
+class CustomerCarDetail extends Model
 {
 
-    protected $table = 'customer__customers';
+    protected $table = 'customer_car_detail';
     protected $fillable = [
         'email',
         'full_name',

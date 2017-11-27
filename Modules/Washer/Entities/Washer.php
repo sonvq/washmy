@@ -8,7 +8,6 @@ class Washer extends Model
 {
 
     protected $table = 'washer__washers';
-    public $translatedAttributes = [];
     
     const EMPLOYMENT_TYPE_EMPLOYED = 'employed';
     const EMPLOYMENT_TYPE_SELF_EMPLOYED = 'self_employed';

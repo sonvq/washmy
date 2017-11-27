@@ -49,6 +49,8 @@ class Kernel extends HttpKernel
         // 'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'apis.frontend' => \App\Http\Middleware\ApiUser::class
+        'apis.frontend' => \App\Http\Middleware\ApiUser::class,
+        'apis.frontend.washer' => \App\Http\Middleware\ApiRequireWasherRole::class,
+        'apis.frontend.customer' => \App\Http\Middleware\ApiRequireCustomerRole::class,
     ];
 }
