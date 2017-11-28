@@ -21,6 +21,10 @@ use App\Common\Helper;
 use Modules\Washrequest\Repositories\WashrequestRepository;
 use Modules\Washrequest\Transformers\WashrequestTransformerInterface;
 use Modules\Customer\Repositories\CustomerCarDetailRepository;
+use Modules\Authentication\Repositories\WasherCustomerDeviceRepository;
+use OneSignal;
+use Modules\Notification\Repositories\NotificationRepository;
+use Modules\Notification\Entities\Notification;
 
 class WashrequestController extends BaseController
 {
@@ -32,6 +36,8 @@ class WashrequestController extends BaseController
             WasherCustomerLoginRepository $washerCustomerLoginRepository,
             WashrequestRepository $washrequestRepository,
             CustomerCarDetailRepository $customerCarDetailRepository,
+            WasherCustomerDeviceRepository $deviceRepository,
+            NotificationRepository $notificationRepository,
             
             WasherTransformerInterface $washerTransformerInterface,
             CustomerTransformerInterface $customerTransformerInterface,
@@ -44,6 +50,8 @@ class WashrequestController extends BaseController
         $this->wash_request_repository = $washrequestRepository;
         $this->washer_customer_login_repository = $washerCustomerLoginRepository;
         $this->customer_car_detail_repository = $customerCarDetailRepository;
+        $this->device_repository = $deviceRepository;
+        $this->notification_repository = $notificationRepository;
                 
         $this->washer_transformer = $washerTransformerInterface;
         $this->customer_transformer = $customerTransformerInterface;
@@ -73,6 +81,48 @@ class WashrequestController extends BaseController
                     'car_color' => $input['car_color']
                 ]);
             }
+        }
+        
+        // Send push notification for all washer
+        try {
+            $playerIdToSend = $this->device_repository->getByAttributes(['type' => 'washer'])
+                    ->pluck('player_id')->toArray();
+            
+            $deviceObjectToSend = $this->device_repository->getByAttributes(['type' => 'washer']);
+                                
+            $heading = 'New Car Wash Request';
+            $message = 'You have a new car wash request, please press accept to proceed';
+            
+            
+            if (count($playerIdToSend) > 0) {                
+                
+                foreach ($deviceObjectToSend as $singleDevice) {
+                    $createdNotificationMessage = $this->notification_repository->create([
+                        'title' => $heading,
+                        'message' => $message,
+                        'sender_id' => $currentLoggedUser->customer_id,
+                        'sender_type' => 'customer',
+                        'receiver_id' => $singleDevice->washer_id,
+                        'receiver_type' => 'washer',
+                        'message_type' => Notification::NOTIFICATION_TYPE_CAR_WASH_REQUEST
+                    ]);
+                }                
+
+                $extraArray['object'] = $createdWashRequest->toArray();
+                $extraArray['message'] = $createdNotificationMessage->toArray();
+                
+                /*
+                * Send Push notification to OneSignal
+                */                
+                OneSignal::sendNotificationToUser(
+                    $message, 
+                    $playerIdToSend, 
+                    $heading, 
+                    $extraArray
+                );  
+            }
+        } catch (\Exception $e) {
+            \Log::error('Push notification error: ' . $e->getMessage());
         }
        
         return $this->response->item($createdWashRequest, $this->washrequest_transformer);   
