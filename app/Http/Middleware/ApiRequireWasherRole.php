@@ -6,11 +6,11 @@ use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use App\Exceptions\CommonException;
 use App\Common\Helper;
-use Modules\Agent\Repositories\AgentMemberLoginRepository;
-use Modules\Agent\Repositories\AgentRepository;
-use Modules\Member\Repositories\MemberRepository;
+use Modules\Authentication\Repositories\WasherCustomerLoginRepository;
+use Modules\Customer\Repositories\CustomerRepository;
+use Modules\Washer\Repositories\WasherRepository;
 
-class ApiRequireAgentRole {
+class ApiRequireWasherRole {
 
 	/**
 	 * The Guard implementation.
@@ -26,14 +26,14 @@ class ApiRequireAgentRole {
 	 * @return void
 	 */
 	public function __construct(Guard $auth, 
-            AgentMemberLoginRepository $agentMemberLoginRepository,
-            AgentRepository $agentRepository,
-            MemberRepository $memberRepository)
+            WasherCustomerLoginRepository $washerCustomerLoginRepository,
+            CustomerRepository $customerRepository,
+            WasherRepository $washerRepository)
 	{
 		$this->auth = $auth;
-        $this->agent_member_login_repository = $agentMemberLoginRepository;
-        $this->agent_repository = $agentRepository;
-        $this->member_repository = $memberRepository;
+        $this->washer_customer_login_repository = $washerCustomerLoginRepository;
+        $this->customer_repository = $customerRepository;
+        $this->washer_repository = $washerRepository;
 	}
 
 	/**
@@ -46,27 +46,36 @@ class ApiRequireAgentRole {
 	public function handle($request, Closure $next)
 	{
         if(!$request->headers->has('USER-TOKEN')){
-            throw new CommonException(401, Helper::UNAUTHORIZED);
+            return Helper::unauthorizedErrorResponse(Helper::MISSING_TOKEN,
+                    Helper::MISSING_TOKEN_TITLE,
+                    Helper::MISSING_TOKEN_MSG);
         }
 
         $persistence_code = $request->header('USER-TOKEN');
         
-        $agentOrMemberObject = $this->agent_member_login_repository->findByAttributes(['token' => $persistence_code]);
+        $customerOrWasherObject = $this->washer_customer_login_repository->findByAttributes(['token' => $persistence_code]);
         
-        if (!$agentOrMemberObject) {
-            throw new CommonException(401, Helper::INVALID_TOKEN);
-        }
+        if (!$customerOrWasherObject) {
+            return Helper::unauthorizedErrorResponse(Helper::INVALID_TOKEN,
+                    Helper::INVALID_TOKEN_TITLE,
+                    Helper::INVALID_TOKEN_MSG);
+        }        
         
-        
-        if($agentOrMemberObject->type == 'agent') {
-            $agent = $agentOrMemberObject->agent;
-            if (!$agent) {
-                throw new CommonException(404, Helper::USER_NOT_FOUND);
+        if($customerOrWasherObject->type == 'washer') {
+            $washer = $customerOrWasherObject->washer;
+            if (!$washer) {
+                return Helper::unauthorizedErrorResponse(Helper::USER_NOT_FOUND,
+                    Helper::USER_NOT_FOUND_TITLE,
+                    Helper::USER_NOT_FOUND_MSG);
             }
-        } else if ($agentOrMemberObject->type == 'member') {
-            throw new CommonException(403, Helper::ONLY_AGENT_ROLE_ALLOWED);
+        } else if ($customerOrWasherObject->type == 'customer') {
+            return Helper::unauthorizedErrorResponse(Helper::ONLY_WASHER_ROLE_ALLOWED,
+                    Helper::ONLY_WASHER_ROLE_ALLOWED_TITLE,
+                    Helper::ONLY_WASHER_ROLE_ALLOWED_MSG); 
         } else {
-            throw new CommonException(404, Helper::USER_NOT_FOUND);
+            return Helper::unauthorizedErrorResponse(Helper::USER_NOT_FOUND,
+                    Helper::USER_NOT_FOUND_TITLE,
+                    Helper::USER_NOT_FOUND_MSG);
         }        
 
         return $next($request);

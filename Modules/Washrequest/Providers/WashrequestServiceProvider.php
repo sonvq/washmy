@@ -31,6 +31,7 @@ class WashrequestServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishConfig('washrequest', 'permissions');
+        $this->publishConfig('washrequest', 'validations');
 
         $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
     }
@@ -61,5 +62,9 @@ class WashrequestServiceProvider extends ServiceProvider
         );
 // add bindings
 
+        $this->app->bind(
+            'Modules\Washrequest\Transformers\WashrequestTransformerInterface', 
+            "Modules\\Washrequest\\Transformers\\WashrequestTransformer"
+        );
     }
 }

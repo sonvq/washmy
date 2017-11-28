@@ -45,27 +45,37 @@ class ApiRequireCustomerRole {
 	public function handle($request, Closure $next)
 	{
         if(!$request->headers->has('USER-TOKEN')){
-            throw new CommonException(401, Helper::UNAUTHORIZED);
+            return Helper::unauthorizedErrorResponse(Helper::MISSING_TOKEN,
+                    Helper::MISSING_TOKEN_TITLE,
+                    Helper::MISSING_TOKEN_MSG);
         }
 
         $persistence_code = $request->header('USER-TOKEN');
         
-        $agentOrMemberObject = $this->agent_member_login_repository->findByAttributes(['token' => $persistence_code]);
+        $customerOrWasherObject = $this->washer_customer_login_repository->findByAttributes(['token' => $persistence_code]);
         
-        if (!$agentOrMemberObject) {
-            throw new CommonException(401, Helper::INVALID_TOKEN);
+        if (!$customerOrWasherObject) {
+            return Helper::unauthorizedErrorResponse(Helper::INVALID_TOKEN,
+                    Helper::INVALID_TOKEN_TITLE,
+                    Helper::INVALID_TOKEN_MSG);
         }
         
         
-        if($agentOrMemberObject->type == 'agent') {
-            throw new CommonException(403, Helper::ONLY_MEMBER_ROLE_ALLOWED);            
-        } else if ($agentOrMemberObject->type == 'member') {
-            $member = $agentOrMemberObject->member;
-            if (!$member) {
-                throw new CommonException(404, Helper::USER_NOT_FOUND);
+        if($customerOrWasherObject->type == 'washer') {
+            return Helper::unauthorizedErrorResponse(Helper::ONLY_CUSTOMER_ROLE_ALLOWED,
+                    Helper::ONLY_CUSTOMER_ROLE_ALLOWED_TITLE,
+                    Helper::ONLY_CUSTOMER_ROLE_ALLOWED_MSG);         
+        } else if ($customerOrWasherObject->type == 'customer') {
+            $customer = $customerOrWasherObject->customer;
+            if (!$customer) {
+                return Helper::unauthorizedErrorResponse(Helper::USER_NOT_FOUND,
+                    Helper::USER_NOT_FOUND_TITLE,
+                    Helper::USER_NOT_FOUND_MSG);
             }
         } else {
-            throw new CommonException(404, Helper::USER_NOT_FOUND);
+            return Helper::unauthorizedErrorResponse(Helper::USER_NOT_FOUND,
+                    Helper::USER_NOT_FOUND_TITLE,
+                    Helper::USER_NOT_FOUND_MSG);
         }        
 
         return $next($request);

@@ -37,6 +37,14 @@ class Helper {
     const USER_NOT_FOUND_TITLE = 'User not found';     
     const USER_NOT_FOUND_MSG = 'User does not exist or has been deleted';
     
+    const ONLY_CUSTOMER_ROLE_ALLOWED = 'ONLY_CUSTOMER_ROLE_ALLOWED';
+    const ONLY_CUSTOMER_ROLE_ALLOWED_TITLE = 'Permission Denied';
+    const ONLY_CUSTOMER_ROLE_ALLOWED_MSG = 'Only customer role allowed';
+    
+    const ONLY_WASHER_ROLE_ALLOWED = 'ONLY_WASHER_ROLE_ALLOWED';
+    const ONLY_WASHER_ROLE_ALLOWED_TITLE = 'Permission Denied';
+    const ONLY_WASHER_ROLE_ALLOWED_MSG = 'Only washer role allowed';
+    
 
     public static function getLoggedUser($platform = null) {
         $persistence_code = request()->header('USER-TOKEN');
