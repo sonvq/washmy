@@ -71,5 +71,10 @@ class CustomerServiceProvider extends ServiceProvider
                 return new \Modules\Customer\Repositories\Eloquent\EloquentCustomerCarDetailRepository(new \Modules\Customer\Entities\CustomerCarDetail());              
             }
         );
+        
+        $this->app->bind(
+            'Modules\Customer\Transformers\CustomerCarDetailTransformerInterface', 
+            "Modules\\Customer\\Transformers\\CustomerCarDetailTransformer"
+        );
     }
 }

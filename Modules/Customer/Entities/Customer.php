@@ -3,6 +3,7 @@
 namespace Modules\Customer\Entities;
 
 use Illuminate\Database\Eloquent\Model;
+use Modules\Customer\Entities\CustomerCarDetail;
 
 class Customer extends Model
 {
@@ -20,4 +21,9 @@ class Customer extends Model
     ];
     
     protected $hidden = ['password'];
+    
+    public function car_detail()
+    {
+        return $this->hasMany(CustomerCarDetail::class, 'customer_id', 'id');
+    }
 }

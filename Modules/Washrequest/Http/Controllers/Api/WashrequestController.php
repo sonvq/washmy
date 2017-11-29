@@ -75,12 +75,23 @@ class WashrequestController extends BaseController
         // If save_for_next_time = yes, save car detail for next time
         if (isset($input['save_for_next_time']) && ($input['save_for_next_time'] == 'yes')) {
             if(isset($input['car_plate_no']) && !empty($input['car_plate_no']) 
-                    && isset($input['car_color']) && !empty($input['car_color'])) {                
-                $createdCustomerCarDetail = $this->customer_car_detail_repository->create([
-                    'customer_id' => $currentLoggedUser->customer_id,
+                    && isset($input['car_color']) && !empty($input['car_color'])) {
+                
+                // Find existing car_plate_no and car_color of this customer_id
+                $existingCustomerCarDetail = $this->customer_car_detail_repository->findByAttributes([
                     'car_plate_no' => $input['car_plate_no'],
-                    'car_color' => $input['car_color']
+                    'car_color' => $input['car_color'],
+                    'customer_id' => $currentLoggedUser->customer_id
                 ]);
+                
+                if (!$existingCustomerCarDetail) {
+                    $createdCustomerCarDetail = $this->customer_car_detail_repository->create([
+                        'customer_id' => $currentLoggedUser->customer_id,
+                        'car_plate_no' => $input['car_plate_no'],
+                        'car_color' => $input['car_color']
+                    ]);
+                }
+                
             }
         }
         
