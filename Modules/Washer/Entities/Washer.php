@@ -26,4 +26,5 @@ class Washer extends Model
         'type'
     ];
         
+    protected $hidden = ['password'];
 }

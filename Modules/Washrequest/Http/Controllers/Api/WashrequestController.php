@@ -69,6 +69,7 @@ class WashrequestController extends BaseController
         }
         $currentLoggedUser = Helper::getLoggedUser();
         // Successfull validated data, start to create new washer
+        $input['customer_id'] = $currentLoggedUser->customer_id;
         $createdWashRequest = $this->wash_request_repository->create($input);
         
         // If save_for_next_time = yes, save car detail for next time
@@ -108,6 +109,7 @@ class WashrequestController extends BaseController
                     ]);
                 }                
 
+                $createdWashRequest->customer;
                 $extraArray['object'] = $createdWashRequest->toArray();
                 $extraArray['message'] = $createdNotificationMessage->toArray();
                 

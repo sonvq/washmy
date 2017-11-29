@@ -27,6 +27,8 @@ class WashrequestTransformer extends TransformerAbstract implements WashrequestT
             'level' => (string) $item->level,
             'car_park_lot_no' => (string) $item->car_park_lot_no,
             'notes' => (string) $item->notes,
+            'customer_id' => (int) $item->customer_id,
+            'customer' => (object) $item->customer,
             'created_at' => (string) $item->created_at,
             'updated_at' => (string) $item->updated_at,
         ];

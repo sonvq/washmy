@@ -3,6 +3,7 @@
 namespace Modules\Washrequest\Entities;
 
 use Illuminate\Database\Eloquent\Model;
+use Modules\Customer\Entities\Customer;
 
 class Washrequest extends Model
 {
@@ -16,7 +17,11 @@ class Washrequest extends Model
         'block_no',
         'level',
         'car_park_lot_no',
-        'notes'
+        'notes',
+        'customer_id'
     ];
     
+    public function customer(){
+        return $this->belongsTo(Customer::class, 'customer_id', 'id');
+    }
 }

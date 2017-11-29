@@ -18,4 +18,6 @@ class Customer extends Model
         'first_time_login',
         'type'
     ];
+    
+    protected $hidden = ['password'];
 }
