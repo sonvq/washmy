@@ -58,6 +58,17 @@ class WashrequestController extends BaseController
         $this->washrequest_transformer = $washrequestTransformerInterface;
     }
     
+    public function detailWashRequest($id) {
+        $washRequest = $this->wash_request_repository->find($id);
+        if(!$washRequest) {
+            return Helper::notFoundErrorResponse(Helper::WASH_REQUEST_NOT_FOUND,
+                        Helper::WASH_REQUEST_NOT_FOUND_TITLE,
+                        Helper::WASH_REQUEST_NOT_FOUND_MSG);
+        }
+        
+        return $this->response->item($washRequest, $this->washrequest_transformer);  
+    }
+    
     public function createWashRequest()
     {
         $input =  $this->request->all();                

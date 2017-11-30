@@ -45,6 +45,10 @@ class Helper {
     const ONLY_WASHER_ROLE_ALLOWED_TITLE = 'Permission Denied';
     const ONLY_WASHER_ROLE_ALLOWED_MSG = 'Only washer role allowed';
     
+    const WASH_REQUEST_NOT_FOUND = 'WASH_REQUEST_NOT_FOUND';  
+    const WASH_REQUEST_NOT_FOUND_TITLE = 'Wash request not found';     
+    const WASH_REQUEST_NOT_FOUND_MSG = 'Wash request does not exist or has been deleted';
+    
 
     public static function getLoggedUser($platform = null) {
         $persistence_code = request()->header('USER-TOKEN');
@@ -123,6 +127,10 @@ class Helper {
     
     public static function unauthorizedErrorResponse ($key, $title, $message) {
         return Helper::commonErrorResponse($key, $title, $message, 401);
+    }
+    
+    public static function notFoundErrorResponse ($key, $title, $message) {
+        return Helper::commonErrorResponse($key, $title, $message, 404);
     }
 
 
