@@ -26,7 +26,11 @@ class CreateWashrequestWashrequestsTable extends Migration
             $table->string('level', 255);
             $table->string('car_park_lot_no', 255);
             $table->text('notes')->nullable();
-            
+            $table->string('status')->default('user_requesting')
+                ->comment('user_requesting / user_declined / user_accept_pay / user_payment_done / user_cancel_request / user_confirm_request '
+                        . '/ washer_accepted / washer_washing / washer_done '
+                        . '/ request_completed');
+            $table->integer('washer_id')->unsigned()->nullable();
             // Your fields
             $table->timestamps();
         });

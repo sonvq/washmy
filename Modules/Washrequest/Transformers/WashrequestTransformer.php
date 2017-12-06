@@ -29,6 +29,9 @@ class WashrequestTransformer extends TransformerAbstract implements WashrequestT
             'notes' => (string) $item->notes,
             'customer_id' => (int) $item->customer_id,
             'customer' => (object) $item->customer,
+            'status' => (string) $item->status,
+            'washer_id' => (int) $item->washer_id,
+            'washer' => (object) $item->washer,
             'created_at' => (string) $item->created_at,
             'updated_at' => (string) $item->updated_at,
         ];

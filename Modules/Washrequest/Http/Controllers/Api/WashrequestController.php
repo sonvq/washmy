@@ -69,6 +69,25 @@ class WashrequestController extends BaseController
         return $this->response->item($washRequest, $this->washrequest_transformer);  
     }
     
+    public function listWashRequest() {
+        
+        $input = $this->request->all();
+        $perPage = (isset($input['per_page']) && $input['per_page'] > 0) ? $input['per_page'] : 1;
+        $currentLoggedUser = Helper::getLoggedUser();
+        
+        if ($currentLoggedUser->type == 'customer') {
+            $washRequestList = $this->wash_request_repository
+                    ->getWashRequestListCustomer($perPage, $currentLoggedUser->customer_id);
+
+            return $this->response->paginator($washRequestList, $this->washrequest_transformer);
+        } else if ($currentLoggedUser->type == 'washer') {
+            $washRequestList = $this->wash_request_repository
+                    ->getWashRequestListWasher($perPage, $currentLoggedUser->washer_id);
+
+            return $this->response->paginator($washRequestList, $this->washrequest_transformer);
+        }
+    }
+    
     public function createWashRequest()
     {
         $input =  $this->request->all();                
