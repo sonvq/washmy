@@ -20,6 +20,9 @@ class Customer extends Model
         'type'
     ];
     
+    const ZONE_CUSTOMER_AVATAR_IMAGE = 'CustomerAvatarImage';
+    
+    
     protected $hidden = ['password'];
     
     public function car_detail()

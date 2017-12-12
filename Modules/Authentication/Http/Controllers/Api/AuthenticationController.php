@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\Password;
 use Modules\Authentication\Repositories\WasherCustomerLoginRepository;
 use Modules\Customer\Repositories\CustomerRepository;
 use App\Common\Helper;
+use Validator;
+use Modules\Media\Services\FileService;
+use Modules\Media\Repositories\FileRepository;
 
 class AuthenticationController extends BaseController
 {
@@ -28,7 +31,9 @@ class AuthenticationController extends BaseController
             CustomerRepository $customerRepository,
             WasherCustomerLoginRepository $washerCustomerLoginRepository,
             WasherTransformerInterface $washerTransformerInterface,
-            CustomerTransformerInterface $customerTransformerInterface)
+            CustomerTransformerInterface $customerTransformerInterface,
+            FileService $fileService,
+            FileRepository $fileRepository)
     {
         
         $this->request = $request;
@@ -37,6 +42,59 @@ class AuthenticationController extends BaseController
         $this->washer_transformer = $washerTransformerInterface;
         $this->washer_customer_login_repository = $washerCustomerLoginRepository;
         $this->customer_transformer = $customerTransformerInterface;
+        $this->file_repository = $fileRepository;
+        $this->file_service = $fileService;
+    }
+    
+    public function updateProfile() {
+        $input = $this->request->all();
+        $currentLoggedUser = Helper::getLoggedUser();
+        
+        if ($currentLoggedUser->type == 'customer') {
+            $customerObject = $currentLoggedUser->customer;
+           
+            $updateRules = [
+                'avatar' => 'image|mimes:jpeg,bmp,png,gif|image_extension|max:10240',                
+                'email' => 'email|max:255|unique:users,email|unique:washer__washers,email|unique:customer__customers,email,' . $customerObject->id,
+                'full_name' => 'max:255',
+                'phone_number' => 'max:255',
+            ];
+            $validator = Validator::make($input, $updateRules);
+
+            if ($validator->fails()) {
+                return Helper::validationErrorResponse($validator);
+            }       
+                                    
+            $this->customer_repository->updateCustomerProfile($this->file_service, $this->file_repository, $customerObject, $input);
+                        
+            return $this->response->item($customerObject, $this->customer_transformer);
+        } else if ($currentLoggedUser->type == 'washer') {  
+            $washerObject = $currentLoggedUser->member;
+            
+            $updateRules = [
+                'nric_front_image' => 'image|mimes:jpeg,bmp,png,gif|image_extension|max:10240',
+                'nric_back_image' => 'image|mimes:jpeg,bmp,png,gif|image_extension|max:10240',
+                'avatar' => 'image|mimes:jpeg,bmp,png,gif|image_extension|max:10240',
+                'email' => 'email|unique:users,email|unique:agent__agents,email|unique:member__members,email,' . $washerObject->id,
+                'phone_country_code' => 'in:' . implode(',', array_keys(config('asgard.core.country_phone_code_list', []))),
+                /*
+                 * TODO re-validate phone_number min 8
+                 */
+                'phone_number' => '',
+                'id_type' => 'in:nric,co_reg_no',
+                'residency_status' => 'in:singapore_citizen,singapore_permanent_resident,foreigner',
+                'date_of_birth' => 'date|date_format:Y-m-d'
+            ];
+            $validator = Validator::make($input, $updateRules);
+                        
+            if ($validator->fails()) {
+                throw new ErrorValidationException(Helper::UNPROCESSABLE_ENTITY, $validator);
+            }  
+                        
+            $this->member_repository->updateMemberProfile($this->file_service, $this->file_repository, $washerObject, $input);
+            
+            return $this->response->item($washerObject, $this->member_transformer);
+        }        
     }
     
     public function register()

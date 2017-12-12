@@ -11,7 +11,10 @@ $api->version('v1', function ($api) {
         
         $api->group(['middleware' => ['apis.frontend']], function () use ($api) {                        
             $api->get('/logout', ['uses' => 'AuthenticationController@logout', 'as' => 'api.authentication.logout']);                        
+            $api->post('/update-profile', ['uses' => 'AuthenticationController@updateProfile', 'as' => 'api.authentication.update.profile']);
         });
+                
+        
     });
 
 });
