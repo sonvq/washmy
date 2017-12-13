@@ -23,8 +23,8 @@ use Modules\Washrequest\Transformers\WashrequestTransformerInterface;
 use Modules\Customer\Repositories\CustomerCarDetailRepository;
 use Modules\Authentication\Repositories\WasherCustomerDeviceRepository;
 use OneSignal;
-use Modules\Notification\Repositories\NotificationRepository;
-use Modules\Notification\Entities\Notification;
+use Modules\Notify\Repositories\NotifyRepository;
+use Modules\Notify\Entities\Notify;
 use Modules\Customer\Transformers\CustomerCarDetailTransformerInterface;
 
 class CustomerController extends BaseController
@@ -38,7 +38,7 @@ class CustomerController extends BaseController
             WashrequestRepository $washrequestRepository,
             CustomerCarDetailRepository $customerCarDetailRepository,
             WasherCustomerDeviceRepository $deviceRepository,
-            NotificationRepository $notificationRepository,
+            NotifyRepository $notifyRepository,
             
             WasherTransformerInterface $washerTransformerInterface,
             CustomerTransformerInterface $customerTransformerInterface,
@@ -53,7 +53,7 @@ class CustomerController extends BaseController
         $this->washer_customer_login_repository = $washerCustomerLoginRepository;
         $this->customer_car_detail_repository = $customerCarDetailRepository;
         $this->device_repository = $deviceRepository;
-        $this->notification_repository = $notificationRepository;
+        $this->notify_repository = $notifyRepository;
                 
         $this->washer_transformer = $washerTransformerInterface;
         $this->customer_transformer = $customerTransformerInterface;

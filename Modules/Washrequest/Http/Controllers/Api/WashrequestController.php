@@ -23,8 +23,8 @@ use Modules\Washrequest\Transformers\WashrequestTransformerInterface;
 use Modules\Customer\Repositories\CustomerCarDetailRepository;
 use Modules\Authentication\Repositories\WasherCustomerDeviceRepository;
 use OneSignal;
-use Modules\Notification\Repositories\NotificationRepository;
-use Modules\Notification\Entities\Notification;
+use Modules\Notify\Repositories\NotifyRepository;
+use Modules\Notify\Entities\Notify;
 
 class WashrequestController extends BaseController
 {
@@ -37,7 +37,7 @@ class WashrequestController extends BaseController
             WashrequestRepository $washrequestRepository,
             CustomerCarDetailRepository $customerCarDetailRepository,
             WasherCustomerDeviceRepository $deviceRepository,
-            NotificationRepository $notificationRepository,
+            NotifyRepository $notifyRepository,
             
             WasherTransformerInterface $washerTransformerInterface,
             CustomerTransformerInterface $customerTransformerInterface,
@@ -51,7 +51,7 @@ class WashrequestController extends BaseController
         $this->washer_customer_login_repository = $washerCustomerLoginRepository;
         $this->customer_car_detail_repository = $customerCarDetailRepository;
         $this->device_repository = $deviceRepository;
-        $this->notification_repository = $notificationRepository;
+        $this->notify_repository = $notifyRepository;
                 
         $this->washer_transformer = $washerTransformerInterface;
         $this->customer_transformer = $customerTransformerInterface;
@@ -139,20 +139,20 @@ class WashrequestController extends BaseController
             if (count($playerIdToSend) > 0) {                
                 
                 foreach ($deviceObjectToSend as $singleDevice) {
-                    $createdNotificationMessage = $this->notification_repository->create([
+                    $createdNotifyMessage = $this->notify_repository->create([
                         'title' => $heading,
                         'message' => $message,
                         'sender_id' => $currentLoggedUser->customer_id,
                         'sender_type' => 'customer',
                         'receiver_id' => $singleDevice->washer_id,
                         'receiver_type' => 'washer',
-                        'message_type' => Notification::NOTIFICATION_TYPE_CAR_WASH_REQUEST
+                        'message_type' => Notify::NOTIFICATION_TYPE_CAR_WASH_REQUEST
                     ]);
                 }                
 
                 $createdWashRequest->customer;
                 $extraArray['object'] = $createdWashRequest->toArray();
-                $extraArray['message'] = $createdNotificationMessage->toArray();
+                $extraArray['message'] = $createdNotifyMessage->toArray();
                 
                 /*
                 * Send Push notification to OneSignal
