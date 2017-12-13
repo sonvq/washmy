@@ -16,6 +16,12 @@ class CustomerTransformer extends TransformerAbstract implements CustomerTransfo
      */
     public function transform(Customer $item) {
         
+        $avatar = $item->avatar;
+        
+        if ($avatar) {
+            $avatar = Helper::imageTransformer($item, 'avatar');
+        }
+        
         $token = isset($item->token) ? $item->token : null;
         return [
             'id' => (int) $item->id,
@@ -27,6 +33,7 @@ class CustomerTransformer extends TransformerAbstract implements CustomerTransfo
             'type' => (string) $item->type,
             'first_time_login' => (int) $item->first_time_login,            
             'token' => (string) $token,            
+            'avatar' => (object) $avatar,
             'created_at' => (string) $item->created_at,
             'updated_at' => (string) $item->updated_at,
         ];

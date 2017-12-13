@@ -5,6 +5,7 @@ namespace Modules\Customer\Repositories\Eloquent;
 use Modules\Customer\Repositories\CustomerRepository;
 use Modules\Core\Repositories\Eloquent\EloquentBaseRepository;
 use Modules\Customer\Entities\Customer;
+use App\Common\Helper;
 
 class EloquentCustomerRepository extends EloquentBaseRepository implements CustomerRepository
 {

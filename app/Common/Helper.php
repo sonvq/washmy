@@ -49,7 +49,19 @@ class Helper {
     const WASH_REQUEST_NOT_FOUND_TITLE = 'Wash request not found';     
     const WASH_REQUEST_NOT_FOUND_MSG = 'Wash request does not exist or has been deleted';
     
-
+    const IMAGE_ATTRIBUTES = [
+        'id',
+        'extension',
+        'mimetype',
+        'filesize',
+        'thumb_file_url',
+        'raw_file_url',
+        'medium_thumb_file_url',
+        'large_url',
+        'medium_url',
+        'small_url'
+    ];
+    
     public static function getLoggedUser($platform = null) {
         $persistence_code = request()->header('USER-TOKEN');
 
@@ -62,6 +74,52 @@ class Helper {
             }
         }
         return null;        
+    }
+    
+    public static function uploadMediaFile($fileService, $fileRepository, $inputFile, $zone, $object, $entityClass, $gallerry = null) {
+        $savedFile = $fileService->store($inputFile);
+        if (!is_string($savedFile)) {
+            if (!$gallerry){
+                $oldMediaFile = $fileRepository->findFileByZoneForEntity($zone, $object);
+                if (!empty($oldMediaFile)) {
+                    \DB::table('media__imageables')->where(array('file_id' => $oldMediaFile->id, 'imageable_id' => $object->id, 'zone' => $zone))->delete();
+                }
+            }
+            event(new FileWasUploaded($savedFile));
+            $object->files()->attach($savedFile->id, ['imageable_type' => $entityClass, 'zone' => $zone]);
+            
+            return $savedFile;
+        }           
+        return false;
+    }
+    
+    public static function imageTransformer($item, $relation) {
+        $result = [];
+       
+        if ($item->$relation) {
+            $arrayItem = $item->$relation->toArray();
+            dd($arrayItem);
+            if (count($arrayItem) > 0) {
+                $firstItem = $arrayItem[0];            
+                $result = array_only($firstItem, self::IMAGE_ATTRIBUTES);    
+            }            
+        }
+        return $result;
+    }
+
+    public static function galleryTransformer($item, $relation) {
+        $result = [];
+
+        if ($item->$relation) {
+            $arrayItem = $item->$relation->toArray();
+            if (count($arrayItem) > 0) {
+                foreach ($arrayItem as $firstItem ){
+                    $result[] = array_only($firstItem, self::IMAGE_ATTRIBUTES);
+                }
+
+            }
+        }
+        return array_values($result);
     }
 
     public static function getToken() {
