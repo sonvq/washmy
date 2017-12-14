@@ -69,31 +69,25 @@ class AuthenticationController extends BaseController
                         
             return $this->response->item($customerObject, $this->customer_transformer);
         } else if ($currentLoggedUser->type == 'washer') {  
-            $washerObject = $currentLoggedUser->member;
+            $washerObject = $currentLoggedUser->washer;
             
             $updateRules = [
-                'nric_front_image' => 'image|mimes:jpeg,bmp,png,gif|image_extension|max:10240',
-                'nric_back_image' => 'image|mimes:jpeg,bmp,png,gif|image_extension|max:10240',
                 'avatar' => 'image|mimes:jpeg,bmp,png,gif|image_extension|max:10240',
-                'email' => 'email|unique:users,email|unique:agent__agents,email|unique:member__members,email,' . $washerObject->id,
-                'phone_country_code' => 'in:' . implode(',', array_keys(config('asgard.core.country_phone_code_list', []))),
-                /*
-                 * TODO re-validate phone_number min 8
-                 */
-                'phone_number' => '',
-                'id_type' => 'in:nric,co_reg_no',
-                'residency_status' => 'in:singapore_citizen,singapore_permanent_resident,foreigner',
-                'date_of_birth' => 'date|date_format:Y-m-d'
+                'email' => 'email|max:255|unique:users,email|unique:customer__customers,email|unique:washer__washers,email,' . $washerObject->id,
+                'full_name' => 'max:255',
+                'phone_number' => 'max:255',
+                'employment_type' => 'in:employed,self_employed,student,homemaker'
             ];
+                    
             $validator = Validator::make($input, $updateRules);
                         
             if ($validator->fails()) {
-                throw new ErrorValidationException(Helper::UNPROCESSABLE_ENTITY, $validator);
+                return Helper::validationErrorResponse($validator);
             }  
                         
-            $this->member_repository->updateMemberProfile($this->file_service, $this->file_repository, $washerObject, $input);
+            $this->washer_repository->updateWasherProfile($this->file_service, $this->file_repository, $washerObject, $input);
             
-            return $this->response->item($washerObject, $this->member_transformer);
+            return $this->response->item($washerObject, $this->washer_transformer);
         }        
     }
     

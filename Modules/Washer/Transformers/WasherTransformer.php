@@ -15,6 +15,7 @@ class WasherTransformer extends TransformerAbstract implements WasherTransformer
      * @return array
      */
     public function transform(Washer $item) {
+        $avatar = $item->avatar->first();
         
         $token = isset($item->token) ? $item->token : null;
         return [
@@ -27,7 +28,8 @@ class WasherTransformer extends TransformerAbstract implements WasherTransformer
             'push_notification' => (int) $item->push_notification,
             'type' => (string) $item->type,
             'first_time_login' => (int) $item->first_time_login,            
-            'token' => (string) $token,            
+            'token' => (string) $token,     
+            'avatar' => (object) $avatar,
             'created_at' => (string) $item->created_at,
             'updated_at' => (string) $item->updated_at,
         ];

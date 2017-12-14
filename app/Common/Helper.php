@@ -51,15 +51,15 @@ class Helper {
     
     const IMAGE_ATTRIBUTES = [
         'id',
+        'filename',
         'extension',
         'mimetype',
         'filesize',
-        'thumb_file_url',
-        'raw_file_url',
-        'medium_thumb_file_url',
-        'large_url',
-        'medium_url',
-        'small_url'
+        'folder_id',
+        'path_string',
+        'media_type',
+        'created_at',
+        'updated_at'
     ];
     
     public static function getLoggedUser($platform = null) {
@@ -98,7 +98,6 @@ class Helper {
        
         if ($item->$relation) {
             $arrayItem = $item->$relation->toArray();
-            dd($arrayItem);
             if (count($arrayItem) > 0) {
                 $firstItem = $arrayItem[0];            
                 $result = array_only($firstItem, self::IMAGE_ATTRIBUTES);    
