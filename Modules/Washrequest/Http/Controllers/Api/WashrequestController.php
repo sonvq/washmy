@@ -163,6 +163,7 @@ class WashrequestController extends BaseController
                     $heading, 
                     $extraArray
                 );  
+                \Log::info('Push notification success to player id: ' . $playerIdToSend);
             }
         } catch (\Exception $e) {
             \Log::error('Push notification error: ' . $e->getMessage());
