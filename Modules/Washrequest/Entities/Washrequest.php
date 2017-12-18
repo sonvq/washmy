@@ -24,6 +24,18 @@ class Washrequest extends Model
         'status'
     ];
     
+    const USER_REQUESTING = 'user_requesting';
+    const USER_DECLINED = 'user_declined';
+    const USER_ACCEPT_PAY = 'user_accept_pay';
+    const USER_PAYMENT_DONE = 'user_payment_done';
+    const USER_CANCEL_REQUEST = 'user_cancel_request';
+    const USER_CONFIRM_REQUEST = 'user_confirm_request';
+    const WASHER_ACCEPTED = 'washer_accepted';
+    const WASHER_WASHING = 'washer_washing';
+    const WASHER_DONE = 'washer_done';
+    const REQUEST_COMPLETED = 'request_completed';
+    
+            
     public function customer(){
         return $this->belongsTo(Customer::class, 'customer_id', 'id');
     }

@@ -25,6 +25,7 @@ use Modules\Authentication\Repositories\WasherCustomerDeviceRepository;
 use OneSignal;
 use Modules\Notify\Repositories\NotifyRepository;
 use Modules\Notify\Entities\Notify;
+use Modules\Washrequest\Entities\Washrequest;
 
 class WashrequestController extends BaseController
 {
@@ -56,6 +57,28 @@ class WashrequestController extends BaseController
         $this->washer_transformer = $washerTransformerInterface;
         $this->customer_transformer = $customerTransformerInterface;
         $this->washrequest_transformer = $washrequestTransformerInterface;
+    }
+    
+    public function washerAcceptRequest($id) {
+        
+        $washRequest = $this->wash_request_repository->find($id);
+        if(!$washRequest) {
+            return Helper::notFoundErrorResponse(Helper::WASH_REQUEST_NOT_FOUND,
+                        Helper::WASH_REQUEST_NOT_FOUND_TITLE,
+                        Helper::WASH_REQUEST_NOT_FOUND_MSG);
+        }
+        if (empty($washRequest->washer_id)) {
+            $currentLoggedUser = Helper::getLoggedUser();
+            $washRequest->washer_id = $currentLoggedUser->washer_id;
+            $washRequest->status = Washrequest::WASHER_ACCEPTED;
+            $washRequest->save();
+            
+            return $this->response->item($washRequest, $this->washrequest_transformer);  
+        } else {
+            return Helper::badRequestErrorResponse(Helper::WASH_REQUEST_ALREADY_ACCEPTED,
+                        Helper::WASH_REQUEST_ALREADY_ACCEPTED_TITLE,
+                        Helper::WASH_REQUEST_ALREADY_ACCEPTED_MSG);
+        }
     }
     
     public function detailWashRequest($id) {

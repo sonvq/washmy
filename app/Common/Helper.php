@@ -49,6 +49,11 @@ class Helper {
     const WASH_REQUEST_NOT_FOUND_TITLE = 'Wash request not found';     
     const WASH_REQUEST_NOT_FOUND_MSG = 'Wash request does not exist or has been deleted';
     
+    const WASH_REQUEST_ALREADY_ACCEPTED = 'WASH_REQUEST_ALREADY_ACCEPTED';  
+    const WASH_REQUEST_ALREADY_ACCEPTED_TITLE = 'Error message';     
+    const WASH_REQUEST_ALREADY_ACCEPTED_MSG = 'This wash request already accepted by another washer';
+    
+    
     const IMAGE_ATTRIBUTES = [
         'id',
         'filename',
@@ -188,6 +193,10 @@ class Helper {
     
     public static function notFoundErrorResponse ($key, $title, $message) {
         return Helper::commonErrorResponse($key, $title, $message, 404);
+    }
+    
+    public static function badRequestErrorResponse ($key, $title, $message) {
+        return Helper::commonErrorResponse($key, $title, $message, 400);
     }
 
 
