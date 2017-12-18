@@ -21,6 +21,24 @@ return [
         'messages' => [
             
         ]
-    ],   
+    ],
+    
+    'api-washer-change-request-status' => [
+        'rules' => [
+            'status' => 'required|in:washer_washing,washer_done'
+        ],
+        'messages' => [
             
+        ]
+    ],
+    
+        
+    'api-customer-change-request-status' => [
+        'rules' => [
+            'status' => 'required|in:user_requesting,user_declined,user_accept_pay,user_payment_done,user_cancel_request,user_confirm_request'
+        ],
+        'messages' => [
+            
+        ]
+    ],    
 ];

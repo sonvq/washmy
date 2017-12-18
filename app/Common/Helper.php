@@ -54,6 +54,14 @@ class Helper {
     const WASH_REQUEST_ALREADY_ACCEPTED_MSG = 'This wash request already accepted by another washer';
     
     
+    const NOT_SELECTED_WASHER = 'NOT_SELECTED_WASHER';  
+    const NOT_SELECTED_WASHER_TITLE = 'Error message';     
+    const NOT_SELECTED_WASHER_MSG = 'Only washer of this request can change the status';
+    
+    const NOT_SELECTED_CUSTOMER = 'NOT_SELECTED_CUSTOMER';  
+    const NOT_SELECTED_CUSTOMER_TITLE = 'Error message';     
+    const NOT_SELECTED_CUSTOMER_MSG = 'Only customer of this request can change the status';
+    
     const IMAGE_ATTRIBUTES = [
         'id',
         'filename',
@@ -197,6 +205,10 @@ class Helper {
     
     public static function badRequestErrorResponse ($key, $title, $message) {
         return Helper::commonErrorResponse($key, $title, $message, 400);
+    }
+    
+    public static function forbiddenErrorResponse ($key, $title, $message) {
+        return Helper::commonErrorResponse($key, $title, $message, 403);
     }
 
 

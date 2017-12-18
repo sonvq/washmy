@@ -14,6 +14,14 @@ $api->version('v1', function ($api) {
             $api->post('/washer-accept-request/{id}', ['uses' => 'WashrequestController@washerAcceptRequest', 'as' => 'api.wash-request.washer-accept-request']);            
         });
         
+        $api->group(['middleware' => ['apis.frontend', 'apis.frontend.washer']], function () use ($api) {                        
+            $api->post('/washer-change-request-status/{id}', ['uses' => 'WashrequestController@washerChangeRequestStatus', 'as' => 'api.wash-request.washer-change-request-status']);            
+        });
+        
+        $api->group(['middleware' => ['apis.frontend', 'apis.frontend.customer']], function () use ($api) {                        
+            $api->post('/customer-change-request-status/{id}', ['uses' => 'WashrequestController@customerChangeRequestStatus', 'as' => 'api.wash-request.customer-change-request-status']);            
+        });
+        
         $api->group(['middleware' => ['apis.frontend']], function () use ($api) {                        
             $api->get('/detail/{id}', ['uses' => 'WashrequestController@detailWashRequest', 'as' => 'api.wash-request.detail-wash-request']);            
             $api->get('/list', ['uses' => 'WashrequestController@listWashRequest', 'as' => 'api.wash-request.list-wash-request']);            

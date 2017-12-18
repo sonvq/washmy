@@ -33,7 +33,6 @@ class Washrequest extends Model
     const WASHER_ACCEPTED = 'washer_accepted';
     const WASHER_WASHING = 'washer_washing';
     const WASHER_DONE = 'washer_done';
-    const REQUEST_COMPLETED = 'request_completed';
     
             
     public function customer(){

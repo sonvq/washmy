@@ -81,6 +81,65 @@ class WashrequestController extends BaseController
         }
     }
     
+    public function washerChangeRequestStatus($id) {
+        $input =  $this->request->all();
+        $currentLoggedUser = Helper::getLoggedUser();
+        $washRequest = $this->wash_request_repository->find($id);
+        
+        $validate = $this->validateRequest('api-washer-change-request-status', $input);
+        if ($validate !== true) {
+            return $validate;
+        }
+        
+        if(!$washRequest) {
+            return Helper::notFoundErrorResponse(Helper::WASH_REQUEST_NOT_FOUND,
+                        Helper::WASH_REQUEST_NOT_FOUND_TITLE,
+                        Helper::WASH_REQUEST_NOT_FOUND_MSG);
+        }
+        
+        if ($currentLoggedUser->washer_id == $washRequest->washer_id) {
+            if (isset($input['status']) && !empty($input['status'])) {
+                $washRequest->status = $input['status'];
+                $washRequest->save();
+                return $this->response->item($washRequest, $this->washrequest_transformer);  
+            }
+        } else {
+            return Helper::forbiddenErrorResponse(Helper::NOT_SELECTED_WASHER,
+                        Helper::NOT_SELECTED_WASHER_TITLE,
+                        Helper::NOT_SELECTED_WASHER_MSG);
+        }
+    }
+    
+    public function customerChangeRequestStatus($id) {
+        $currentLoggedUser = Helper::getLoggedUser();
+        $washRequest = $this->wash_request_repository->find($id);
+        $input =  $this->request->all();
+        
+        $validate = $this->validateRequest('api-customer-change-request-status', $input);
+        if ($validate !== true) {
+            return $validate;
+        }
+        
+        if(!$washRequest) {
+            return Helper::notFoundErrorResponse(Helper::WASH_REQUEST_NOT_FOUND,
+                        Helper::WASH_REQUEST_NOT_FOUND_TITLE,
+                        Helper::WASH_REQUEST_NOT_FOUND_MSG);
+        }
+        
+        if ($currentLoggedUser->customer_id == $washRequest->customer_id) {
+            if (isset($input['status']) && !empty($input['status'])) {
+                $washRequest->status = $input['status'];
+                $washRequest->save();
+                return $this->response->item($washRequest, $this->washrequest_transformer);  
+            }
+        } else {
+            return Helper::forbiddenErrorResponse(Helper::NOT_SELECTED_CUSTOMER,
+                        Helper::NOT_SELECTED_CUSTOMER_TITLE,
+                        Helper::NOT_SELECTED_CUSTOMER_MSG);
+        }
+        
+    }
+    
     public function detailWashRequest($id) {
         $washRequest = $this->wash_request_repository->find($id);
         if(!$washRequest) {
