@@ -31,6 +31,8 @@ class ReportingServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishConfig('reporting', 'permissions');
+        $this->publishConfig('reporting', 'config');
+        $this->publishConfig('reporting', 'validations');
 
         $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
     }
@@ -60,6 +62,9 @@ class ReportingServiceProvider extends ServiceProvider
             }
         );
 // add bindings
-
+        $this->app->bind(
+            'Modules\Reporting\Transformers\ReportingTransformerInterface', 
+            "Modules\\Reporting\\Transformers\\ReportingTransformer"
+        );
     }
 }

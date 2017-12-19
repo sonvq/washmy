@@ -19,6 +19,7 @@ class CreateReportingReportingsTable extends Migration
             
             $table->integer('customer_id')->unsigned()->nullable();            
             $table->integer('washer_id')->unsigned()->nullable();
+            $table->integer('washrequest_id')->unsigned()->nullable();
             $table->string('report_type')->comment('customer_make_report/washer_make_report');
             $table->text('report_content');
             
