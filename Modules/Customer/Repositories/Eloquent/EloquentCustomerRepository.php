@@ -41,7 +41,7 @@ class EloquentCustomerRepository extends EloquentBaseRepository implements Custo
                                 $input[$singleArrayField['key']], 
                                 $singleArrayField['zone'], $object, Customer::class);
                     } catch (\Exception $e) {
-                        \Log::error($input[$singleArrayField['key']] . ' - updateCustomerProfile - EloquentCustomerRepository: ' . $e->getMessage());
+                        \Log::error($input[$singleArrayField['key']] . ' - EloquentCustomerRepository - updateCustomerProfile error: ' . $e->getMessage());
                     }
                 }
             }

@@ -43,7 +43,7 @@ class EloquentWashrequestRepository extends EloquentBaseRepository implements Wa
         $query = $this->model
                 ->where('status', Washrequest::USER_REQUESTING)
                 ->whereNull('washer_id')
-                ->where('created_at', '<', $currentTimeString)
+                ->where('updated_at', '<', $currentTimeString)
                 ->update(['status' => Washrequest::EXPIRED]);
     }
 }

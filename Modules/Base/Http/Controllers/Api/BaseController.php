@@ -82,7 +82,7 @@ class BaseController extends Controller
                         }    
                     }
                 } catch (\Exception $e) {
-                    \Log::error('Store user device token error: ' . $e->getMessage());
+                    \Log::error('BaseController - storeUserDeviceInfo - Store user device token error: ' . $e->getMessage());
                     // echo $e->getMessage();
                 }       
             }

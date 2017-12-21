@@ -49,6 +49,15 @@ class Helper {
     const WASH_REQUEST_NOT_FOUND_TITLE = 'Wash request not found';     
     const WASH_REQUEST_NOT_FOUND_MSG = 'Wash request does not exist or has been deleted';
     
+    const NOT_OWNER_OF_REQUEST = 'NOT_OWNER_OF_REQUEST';
+    const NOT_OWNER_OF_REQUEST_TITLE = 'Error message';     
+    const NOT_OWNER_OF_REQUEST_MSG = 'Only owner of this wash request allowed';
+    
+    const WASH_REQUEST_ACCEPTED_CAN_NOT_REQUEST_AGAIN = 'WASH_REQUEST_ACCEPTED_CAN_NOT_REQUEST_AGAIN';
+    const WASH_REQUEST_ACCEPTED_CAN_NOT_REQUEST_AGAIN_TITLE = 'Error message';     
+    const WASH_REQUEST_ACCEPTED_CAN_NOT_REQUEST_AGAIN_MSG = 'Wash request accepted by a washer, can not request again';
+        
+    
     const WASH_REQUEST_ALREADY_ACCEPTED = 'WASH_REQUEST_ALREADY_ACCEPTED';  
     const WASH_REQUEST_ALREADY_ACCEPTED_TITLE = 'Error message';     
     const WASH_REQUEST_ALREADY_ACCEPTED_MSG = 'This wash request already accepted by another washer';

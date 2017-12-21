@@ -42,7 +42,7 @@ class EloquentWasherRepository extends EloquentBaseRepository implements WasherR
                                 $input[$singleArrayField['key']], 
                                 $singleArrayField['zone'], $object, Washer::class);
                     } catch (\Exception $e) {
-                        \Log::error($input[$singleArrayField['key']] . ' - updateWasherProfile - EloquentWasherRepository: ' . $e->getMessage());
+                        \Log::error($input[$singleArrayField['key']] . ' - EloquentWasherRepository - updateWasherProfile error: ' . $e->getMessage());
                     }
                 }
             }

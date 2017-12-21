@@ -146,6 +146,79 @@ class WashrequestController extends BaseController
         
     }
     
+    public function customerRequestAgain($id) {
+        $currentLoggedUser = Helper::getLoggedUser();
+        $washRequest = $this->wash_request_repository->find($id);
+        $input =  $this->request->all();              
+        
+        if(!$washRequest) {
+            return Helper::notFoundErrorResponse(Helper::WASH_REQUEST_NOT_FOUND,
+                        Helper::WASH_REQUEST_NOT_FOUND_TITLE,
+                        Helper::WASH_REQUEST_NOT_FOUND_MSG);
+        }
+        
+        if ($currentLoggedUser->customer_id == $washRequest->customer_id) {
+            if (!empty($washRequest->washer_id)) {
+                return Helper::forbiddenErrorResponse(Helper::WASH_REQUEST_ACCEPTED_CAN_NOT_REQUEST_AGAIN,
+                    Helper::WASH_REQUEST_ACCEPTED_CAN_NOT_REQUEST_AGAIN_TITLE,
+                    Helper::WASH_REQUEST_ACCEPTED_CAN_NOT_REQUEST_AGAIN_MSG);
+            }
+            
+            $washRequest->status = Washrequest::USER_REQUESTING;
+            $washRequest->save();
+
+            // Send push notification again
+            // Send push notification for all washer
+            try {
+                $playerIdToSend = $this->device_repository->getByAttributes(['type' => 'washer'])
+                        ->pluck('player_id')->toArray();
+
+                $deviceObjectToSend = $this->device_repository->getByAttributes(['type' => 'washer']);
+
+                $heading = 'New Car Wash Request';
+                $message = 'You have a new car wash request, please press accept to proceed';
+
+                if (count($playerIdToSend) > 0) {                
+
+                    foreach ($deviceObjectToSend as $singleDevice) {
+                        $createdNotifyMessage = $this->notify_repository->create([
+                            'title' => $heading,
+                            'message' => $message,
+                            'sender_id' => $currentLoggedUser->customer_id,
+                            'sender_type' => 'customer',
+                            'receiver_id' => $singleDevice->washer_id,
+                            'receiver_type' => 'washer',
+                            'message_type' => Notify::NOTIFICATION_TYPE_CAR_WASH_REQUEST
+                        ]);
+                    }                
+
+                    $washRequest->customer;
+                    $extraArray['object'] = $washRequest->toArray();
+                    $extraArray['message'] = $createdNotifyMessage->toArray();
+
+                    /*
+                    * Send Push notification to OneSignal
+                    */                
+                    OneSignal::sendNotificationToUser(
+                        $message, 
+                        $playerIdToSend, 
+                        $heading, 
+                        $extraArray
+                    );  
+                    \Log::info('WashrequestController - customerRequestAgain - Push notification success to player id: ' . $playerIdToSend);
+                }
+            } catch (\Exception $e) {
+                \Log::error('WashrequestController - customerRequestAgain - Push notification error: ' . $e->getMessage());
+            }
+            
+            return $this->response->item($washRequest, $this->washrequest_transformer);  
+        } else {
+            return Helper::forbiddenErrorResponse(Helper::NOT_OWNER_OF_REQUEST,
+                        Helper::NOT_OWNER_OF_REQUEST_TITLE,
+                        Helper::NOT_OWNER_OF_REQUEST_MSG);
+        }
+    }
+    
     public function detailWashRequest($id) {
         // Change all existing pending washrequest > 120 seconds to expired request
         $expiredWashRequest = $this->wash_request_repository->updateExpiredRequest();
@@ -256,10 +329,10 @@ class WashrequestController extends BaseController
                     $heading, 
                     $extraArray
                 );  
-                \Log::info('Push notification success to player id: ' . $playerIdToSend);
+                \Log::info('WashrequestController - createWashRequest - Push notification success to player id: ' . $playerIdToSend);
             }
         } catch (\Exception $e) {
-            \Log::error('Push notification error: ' . $e->getMessage());
+            \Log::error('WashrequestController - createWashRequest - Push notification error: ' . $e->getMessage());
         }
        
         return $this->response->item($createdWashRequest, $this->washrequest_transformer);   
