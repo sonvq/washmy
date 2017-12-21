@@ -53,6 +53,10 @@ class Helper {
     const WASH_REQUEST_ALREADY_ACCEPTED_TITLE = 'Error message';     
     const WASH_REQUEST_ALREADY_ACCEPTED_MSG = 'This wash request already accepted by another washer';
     
+    const WASH_REQUEST_ALREADY_CANCELED_OR_EXPIRED = 'WASH_REQUEST_ALREADY_CANCELED_OR_EXPIRED';  
+    const WASH_REQUEST_ALREADY_CANCELED_OR_EXPIRED_TITLE = 'Error message';     
+    const WASH_REQUEST_ALREADY_CANCELED_OR_EXPIRED_MSG = 'This wash request has been expired or canceled by customer';
+    
     
     const NOT_SELECTED_WASHER = 'NOT_SELECTED_WASHER';  
     const NOT_SELECTED_WASHER_TITLE = 'Error message';     

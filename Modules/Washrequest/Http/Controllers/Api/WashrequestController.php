@@ -68,12 +68,18 @@ class WashrequestController extends BaseController
                         Helper::WASH_REQUEST_NOT_FOUND_MSG);
         }
         if (empty($washRequest->washer_id)) {
-            $currentLoggedUser = Helper::getLoggedUser();
-            $washRequest->washer_id = $currentLoggedUser->washer_id;
-            $washRequest->status = Washrequest::WASHER_ACCEPTED;
-            $washRequest->save();
-            
-            return $this->response->item($washRequest, $this->washrequest_transformer);  
+            if ($washRequest->status == Washrequest::USER_REQUESTING) {            
+                $currentLoggedUser = Helper::getLoggedUser();
+                $washRequest->washer_id = $currentLoggedUser->washer_id;
+                $washRequest->status = Washrequest::WASHER_ACCEPTED;
+                $washRequest->save();
+
+                return $this->response->item($washRequest, $this->washrequest_transformer);  
+            } else {
+                return Helper::badRequestErrorResponse(Helper::WASH_REQUEST_ALREADY_CANCELED_OR_EXPIRED,
+                        Helper::WASH_REQUEST_ALREADY_CANCELED_OR_EXPIRED_TITLE,
+                        Helper::WASH_REQUEST_ALREADY_CANCELED_OR_EXPIRED_MSG);
+            }
         } else {
             return Helper::badRequestErrorResponse(Helper::WASH_REQUEST_ALREADY_ACCEPTED,
                         Helper::WASH_REQUEST_ALREADY_ACCEPTED_TITLE,
