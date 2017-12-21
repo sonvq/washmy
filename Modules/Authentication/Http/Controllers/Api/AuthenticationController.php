@@ -67,6 +67,7 @@ class AuthenticationController extends BaseController
                                     
             $this->customer_repository->updateCustomerProfile($this->file_service, $this->file_repository, $customerObject, $input);
                         
+            $customerObject->token = $currentLoggedUser->token;
             return $this->response->item($customerObject, $this->customer_transformer);
         } else if ($currentLoggedUser->type == 'washer') {  
             $washerObject = $currentLoggedUser->washer;
@@ -87,6 +88,7 @@ class AuthenticationController extends BaseController
                         
             $this->washer_repository->updateWasherProfile($this->file_service, $this->file_repository, $washerObject, $input);
             
+            $washerObject->token = $currentLoggedUser->token;
             return $this->response->item($washerObject, $this->washer_transformer);
         }        
     }
