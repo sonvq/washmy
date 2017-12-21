@@ -4,6 +4,8 @@ namespace Modules\Washrequest\Repositories\Eloquent;
 
 use Modules\Washrequest\Repositories\WashrequestRepository;
 use Modules\Core\Repositories\Eloquent\EloquentBaseRepository;
+use Modules\Washrequest\Entities\Washrequest;
+use Carbon\Carbon;
 
 class EloquentWashrequestRepository extends EloquentBaseRepository implements WashrequestRepository
 {
@@ -33,5 +35,15 @@ class EloquentWashrequestRepository extends EloquentBaseRepository implements Wa
         }
         return $query->paginate($perPage);
         
+    }
+    
+    public function updateExpiredRequest() {
+        $currentTime = Carbon::now()->subMinute(2);
+        $currentTimeString = $currentTime->toDateTimeString();
+        $query = $this->model
+                ->where('status', Washrequest::USER_REQUESTING)
+                ->whereNull('washer_id')
+                ->where('created_at', '<', $currentTimeString)
+                ->update(['status' => Washrequest::EXPIRED]);
     }
 }

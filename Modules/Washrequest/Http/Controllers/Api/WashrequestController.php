@@ -147,6 +147,9 @@ class WashrequestController extends BaseController
     }
     
     public function detailWashRequest($id) {
+        // Change all existing pending washrequest > 120 seconds to expired request
+        $expiredWashRequest = $this->wash_request_repository->updateExpiredRequest();
+        
         $washRequest = $this->wash_request_repository->find($id);
         if(!$washRequest) {
             return Helper::notFoundErrorResponse(Helper::WASH_REQUEST_NOT_FOUND,
@@ -158,6 +161,8 @@ class WashrequestController extends BaseController
     }
     
     public function listWashRequest() {
+        // Change all existing pending washrequest > 120 seconds to expired request
+        $expiredWashRequest = $this->wash_request_repository->updateExpiredRequest();
         
         $input = $this->request->all();
         $perPage = (isset($input['per_page']) && $input['per_page'] > 0) ? $input['per_page'] : 15;
