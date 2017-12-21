@@ -15,7 +15,7 @@ class WasherTransformer extends TransformerAbstract implements WasherTransformer
      * @return array
      */
     public function transform(Washer $item) {
-        $avatar = $item->avatar->first();
+        $avatar = $item->avatar_image->first();
         
         $token = isset($item->token) ? $item->token : null;
         return [

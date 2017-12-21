@@ -16,7 +16,7 @@ class CustomerTransformer extends TransformerAbstract implements CustomerTransfo
      */
     public function transform(Customer $item) {
         
-        $avatar = $item->avatar->first();        
+        $avatar = $item->avatar_image->first();        
         
         $token = isset($item->token) ? $item->token : null;
         return [

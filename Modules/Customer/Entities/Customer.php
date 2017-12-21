@@ -34,7 +34,7 @@ class Customer extends Model
         return $this->hasMany(CustomerCarDetail::class, 'customer_id', 'id');
     }
     
-    public function avatar() {
+    public function avatar_image() {
         return $this->belongsToMany(File::class, 'media__imageables', 'imageable_id', 'file_id')
             ->wherePivot('imageable_type', self::class)
             ->wherePivot('zone', self::ZONE_CUSTOMER_AVATAR_IMAGE)

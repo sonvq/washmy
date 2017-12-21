@@ -33,6 +33,7 @@ class Washrequest extends Model
     const WASHER_ACCEPTED = 'washer_accepted';
     const WASHER_WASHING = 'washer_washing';
     const WASHER_DONE = 'washer_done';
+    const EXPIRED = 'expired';
     
             
     public function customer(){

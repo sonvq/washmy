@@ -17,6 +17,15 @@ class WashrequestTransformer extends TransformerAbstract implements WashrequestT
     public function transform(Washrequest $item) {
         
         $token = isset($item->token) ? $item->token : null;
+        
+        $customer = $item->customer;
+        $customer->avatar = $customer->avatar_image->first();
+        
+        $washer = $item->washer;
+        if ($washer) {
+            $washer->avatar = $washer->avatar_image->first();   
+        }
+        
         return [
             'id' => (int) $item->id,
             'type' => (string) $item->type,
@@ -28,10 +37,10 @@ class WashrequestTransformer extends TransformerAbstract implements WashrequestT
             'car_park_lot_no' => (string) $item->car_park_lot_no,
             'notes' => (string) $item->notes,
             'customer_id' => (int) $item->customer_id,
-            'customer' => (object) $item->customer,
+            'customer' => (object) $customer,
             'status' => (string) $item->status,
             'washer_id' => (int) $item->washer_id,
-            'washer' => (object) $item->washer,
+            'washer' => (object) $washer,
             'created_at' => (string) $item->created_at,
             'updated_at' => (string) $item->updated_at,
         ];
