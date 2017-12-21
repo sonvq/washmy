@@ -148,6 +148,55 @@ class WashrequestController extends BaseController
             if (isset($input['status']) && !empty($input['status'])) {
                 $washRequest->status = $input['status'];
                 $washRequest->save();
+                
+                // Push notification to user
+                try {
+                    $playerIdToSend = $this->device_repository->getByAttributes(['customer_id' => $washRequest->customer_id])
+                            ->pluck('player_id')->toArray();
+
+                    $deviceObjectToSend = $this->device_repository->getByAttributes(['customer_id' => $washRequest->customer_id]);
+
+                    
+                    if ($input['status'] == 'washer_washing') {
+                        $heading = 'Wash request processing';
+                        $message = 'Washer are washing your car now';
+                    } else if ($input['status'] == 'washer_done') {
+                        $heading = 'Wash request completed';
+                        $message = 'Washer has completed the request, please confirm';
+                    }
+
+                    if (count($playerIdToSend) > 0) {                
+
+                        foreach ($deviceObjectToSend as $singleDevice) {
+                            $createdNotifyMessage = $this->notify_repository->create([
+                                'title' => $heading,
+                                'message' => $message,
+                                'sender_id' => $currentLoggedUser->washer_id,
+                                'sender_type' => 'washer',
+                                'receiver_id' => $singleDevice->customer_id,
+                                'receiver_type' => 'customer',
+                                'message_type' => Notify::NOTIFICATION_TYPE_CAR_WASH_REQUEST
+                            ]);
+                        }                
+
+                        $extraArray['object'] = $washRequest->toArray();
+                        $extraArray['message'] = $createdNotifyMessage->toArray();
+
+                        /*
+                        * Send Push notification to OneSignal
+                        */                
+                        OneSignal::sendNotificationToUser(
+                            $message, 
+                            $playerIdToSend, 
+                            $heading, 
+                            $extraArray
+                        );  
+                        \Log::info('WashrequestController - washerAcceptRequest - Push notification success to player id: ' . print_r($playerIdToSend, true));
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('WashrequestController - washerAcceptRequest - Push notification error: ' . $e->getMessage());
+                }
+                
                 return $this->response->item($washRequest, $this->washrequest_transformer);  
             }
         } else {
