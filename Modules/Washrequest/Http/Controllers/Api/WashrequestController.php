@@ -334,8 +334,9 @@ class WashrequestController extends BaseController
         } catch (\Exception $e) {
             \Log::error('WashrequestController - createWashRequest - Push notification error: ' . $e->getMessage());
         }
+        $washRequestReturn = $this->wash_request_repository->find($createdWashRequest->id);
        
-        return $this->response->item($createdWashRequest, $this->washrequest_transformer);   
+        return $this->response->item($washRequestReturn, $this->washrequest_transformer);   
     }
     
 
