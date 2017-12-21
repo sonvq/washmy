@@ -74,6 +74,47 @@ class WashrequestController extends BaseController
                 $washRequest->status = Washrequest::WASHER_ACCEPTED;
                 $washRequest->save();
 
+                // Push notification to user
+                try {
+                    $playerIdToSend = $this->device_repository->getByAttributes(['customer_id' => $washRequest->customer_id])
+                            ->pluck('player_id')->toArray();
+
+                    $deviceObjectToSend = $this->device_repository->getByAttributes(['customer_id' => $washRequest->customer_id]);
+
+                    $heading = $currentLoggedUser->washer->full_name . ' accepted your wash request';
+                    $message = 'A washer has accepted your wash request, please confirm and process payment to continue';
+
+                    if (count($playerIdToSend) > 0) {                
+
+                        foreach ($deviceObjectToSend as $singleDevice) {
+                            $createdNotifyMessage = $this->notify_repository->create([
+                                'title' => $heading,
+                                'message' => $message,
+                                'sender_id' => $currentLoggedUser->washer_id,
+                                'sender_type' => 'washer',
+                                'receiver_id' => $singleDevice->customer_id,
+                                'receiver_type' => 'customer',
+                                'message_type' => Notify::NOTIFICATION_TYPE_CAR_WASH_REQUEST
+                            ]);
+                        }                
+
+                        $extraArray['object'] = $washRequest->toArray();
+                        $extraArray['message'] = $createdNotifyMessage->toArray();
+
+                        /*
+                        * Send Push notification to OneSignal
+                        */                
+                        OneSignal::sendNotificationToUser(
+                            $message, 
+                            $playerIdToSend, 
+                            $heading, 
+                            $extraArray
+                        );  
+                        \Log::info('WashrequestController - washerAcceptRequest - Push notification success to player id: ' . print_r($playerIdToSend, true));
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('WashrequestController - washerAcceptRequest - Push notification error: ' . $e->getMessage());
+                }
                 return $this->response->item($washRequest, $this->washrequest_transformer);  
             } else {
                 return Helper::badRequestErrorResponse(Helper::WASH_REQUEST_ALREADY_CANCELED_OR_EXPIRED,
@@ -192,7 +233,6 @@ class WashrequestController extends BaseController
                         ]);
                     }                
 
-                    $washRequest->customer;
                     $extraArray['object'] = $washRequest->toArray();
                     $extraArray['message'] = $createdNotifyMessage->toArray();
 
@@ -205,7 +245,7 @@ class WashrequestController extends BaseController
                         $heading, 
                         $extraArray
                     );  
-                    \Log::info('WashrequestController - customerRequestAgain - Push notification success to player id: ' . $playerIdToSend);
+                    \Log::info('WashrequestController - customerRequestAgain - Push notification success to player id: ' . print_r($playerIdToSend, true));
                 }
             } catch (\Exception $e) {
                 \Log::error('WashrequestController - customerRequestAgain - Push notification error: ' . $e->getMessage());
@@ -316,7 +356,6 @@ class WashrequestController extends BaseController
                     ]);
                 }                
 
-                $createdWashRequest->customer;
                 $extraArray['object'] = $createdWashRequest->toArray();
                 $extraArray['message'] = $createdNotifyMessage->toArray();
                 
@@ -329,7 +368,7 @@ class WashrequestController extends BaseController
                     $heading, 
                     $extraArray
                 );  
-                \Log::info('WashrequestController - createWashRequest - Push notification success to player id: ' . $playerIdToSend);
+                \Log::info('WashrequestController - createWashRequest - Push notification success to player id: ' . print_r($playerIdToSend, true));
             }
         } catch (\Exception $e) {
             \Log::error('WashrequestController - createWashRequest - Push notification error: ' . $e->getMessage());
