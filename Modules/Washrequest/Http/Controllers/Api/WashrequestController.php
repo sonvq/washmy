@@ -380,6 +380,8 @@ class WashrequestController extends BaseController
             }
         }
         
+        $washRequestReturn = $this->wash_request_repository->find($createdWashRequest->id);
+        
         // Send push notification for all washer
         try {
             $playerIdToSend = $this->device_repository->getByAttributes(['type' => 'washer'])
@@ -405,7 +407,7 @@ class WashrequestController extends BaseController
                     ]);
                 }                
 
-                $extraArray['object'] = $createdWashRequest->toArray();
+                $extraArray['object'] = $washRequestReturn->toArray();
                 $extraArray['message'] = $createdNotifyMessage->toArray();
                 
                 /*
@@ -421,8 +423,7 @@ class WashrequestController extends BaseController
             }
         } catch (\Exception $e) {
             \Log::error('WashrequestController - createWashRequest - Push notification error: ' . $e->getMessage());
-        }
-        $washRequestReturn = $this->wash_request_repository->find($createdWashRequest->id);
+        }        
        
         return $this->response->item($washRequestReturn, $this->washrequest_transformer);   
     }
