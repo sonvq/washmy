@@ -247,7 +247,66 @@ class AuthenticationController extends BaseController
         $currentLoggedUser->delete();                
         
         return $this->response->array(['data' => trans('authentication::messages.SUCCESSFUL_LOGOUT')]);
-    }           
+    }       
+
+    public function changePassword() {
+        $input = $this->request->all();
+        
+        $validateType = $this->validateRequest('api-check-change-password', $input);
+        if ($validateType !== true) {
+            return $validateType;
+        } 
+        
+        $currentLoggedUser = Helper::getLoggedUser();
+        if (!$currentLoggedUser) {
+            return Helper::unauthorizedErrorResponse(Helper::USER_NOT_FOUND,
+                    Helper::USER_NOT_FOUND_TITLE,
+                    Helper::USER_NOT_FOUND_MSG);
+        }                               
+        if ($currentLoggedUser->type == 'customer') {
+            if (!empty($currentLoggedUser->customer)) {
+                $customerObject = $currentLoggedUser->customer;
+                
+                if (!Hash::check($input['now_password'], $customerObject->password)) {
+                    return Helper::badRequestErrorResponse(Helper::WRONG_NOW_PASSWORD,
+                        Helper::WRONG_NOW_PASSWORD_TITLE,
+                        Helper::WRONG_NOW_PASSWORD_MSG);
+                } else {
+                    $customerChangePasswordObject = $this->customer_repository->update($customerObject, [
+                        'password' => Hash::make($input['password']),
+                    ]);
+                    $customerChangePasswordObject->token = $currentLoggedUser->token;
+                    
+                    return $this->response->item($customerChangePasswordObject, $this->customer_transformer);
+                }
+            } else {
+                return Helper::unauthorizedErrorResponse(Helper::USER_NOT_FOUND,
+                    Helper::USER_NOT_FOUND_TITLE,
+                    Helper::USER_NOT_FOUND_MSG);
+            }
+        } else {
+
+            if (!empty($currentLoggedUser->washer)) {
+                $washerObject = $currentLoggedUser->washer;
+                if (!Hash::check($input['now_password'], $washerObject->password)) {
+                    return Helper::badRequestErrorResponse(Helper::WRONG_NOW_PASSWORD,
+                        Helper::WRONG_NOW_PASSWORD_TITLE,
+                        Helper::WRONG_NOW_PASSWORD_MSG);
+                } else {
+                    $washerChangePasswordObject = $this->washer_repository->update($washerObject, [
+                        'password' => Hash::make($input['password']),
+                    ]);
+
+                    $washerChangePasswordObject->token = $currentLoggedUser->token;
+                    return $this->response->item($washerChangePasswordObject, $this->washer_transformer);
+                }
+            } else {
+                return Helper::unauthorizedErrorResponse(Helper::USER_NOT_FOUND,
+                    Helper::USER_NOT_FOUND_TITLE,
+                    Helper::USER_NOT_FOUND_MSG);
+            }
+        }    
+    }
 
 
 }

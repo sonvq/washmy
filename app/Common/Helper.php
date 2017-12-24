@@ -37,6 +37,10 @@ class Helper {
     const USER_NOT_FOUND_TITLE = 'User not found';     
     const USER_NOT_FOUND_MSG = 'User does not exist or has been deleted';
     
+    const WRONG_NOW_PASSWORD = 'WRONG_NOW_PASSWORD';  
+    const WRONG_NOW_PASSWORD_TITLE = 'Error message';     
+    const WRONG_NOW_PASSWORD_MSG = 'Old password is not correct';
+    
     const ONLY_CUSTOMER_ROLE_ALLOWED = 'ONLY_CUSTOMER_ROLE_ALLOWED';
     const ONLY_CUSTOMER_ROLE_ALLOWED_TITLE = 'Permission Denied';
     const ONLY_CUSTOMER_ROLE_ALLOWED_MSG = 'Only customer role allowed';

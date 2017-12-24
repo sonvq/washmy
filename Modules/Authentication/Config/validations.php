@@ -51,4 +51,16 @@ return [
         ]
     ],
     
+    'api-check-change-password' => [
+        'rules' => [
+            'now_password'          => 'required',
+            'password'              => 'required|confirmed|different:now_password',
+            'password_confirmation' => 'required',
+        ],
+        'messages' => [
+
+        ]
+    ],
+    
+    
 ];
