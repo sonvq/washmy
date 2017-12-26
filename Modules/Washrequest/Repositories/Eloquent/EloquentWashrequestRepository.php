@@ -46,4 +46,13 @@ class EloquentWashrequestRepository extends EloquentBaseRepository implements Wa
                 ->where('updated_at', '<', $currentTimeString)
                 ->update(['status' => Washrequest::EXPIRED]);
     }
+    
+    public function findCurrentRunningWashRequest($customerId) {
+        $currentTime = Carbon::now()->subMinute(2);
+        $currentTimeString = $currentTime->toDateTimeString();
+        return $this->model
+                ->where('status', Washrequest::USER_REQUESTING)
+                ->whereNull('washer_id')
+                ->where('updated_at', '>', $currentTimeString)->first();
+    }
 }

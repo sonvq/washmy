@@ -401,6 +401,23 @@ class WashrequestController extends BaseController
         }
     }
     
+    public function customerCheckCurrentWashRequest() {
+        $input =  $this->request->all();                
+        
+        $currentLoggedUser = Helper::getLoggedUser();
+                
+        $currentWashRequest = $this->wash_request_repository->findCurrentRunningWashRequest($currentLoggedUser->customer_id);
+
+        if ($currentWashRequest) {       
+            return $this->response->item($currentWashRequest, $this->washrequest_transformer);   
+        } else {
+            return Helper::notFoundErrorResponse(Helper::WASH_REQUEST_NOT_FOUND,
+                        Helper::WASH_REQUEST_NOT_FOUND_TITLE,
+                        Helper::WASH_REQUEST_NOT_FOUND_MSG);
+        }
+        
+    }
+    
     public function createWashRequest()
     {
         $input =  $this->request->all();                
