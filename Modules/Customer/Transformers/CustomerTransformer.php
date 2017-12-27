@@ -5,6 +5,7 @@ namespace Modules\Customer\Transformers;
 use League\Fractal\TransformerAbstract;
 use Modules\Customer\Entities\Customer;
 use App\Common\Helper;
+use Carbon\Carbon;
 
 class CustomerTransformer extends TransformerAbstract implements CustomerTransformerInterface {
 
@@ -17,6 +18,12 @@ class CustomerTransformer extends TransformerAbstract implements CustomerTransfo
     public function transform(Customer $item) {
         
         $avatar = $item->avatar_image->first();        
+        $washRequest = $item->wash_request;
+        $countWashRequest = count($washRequest);
+        $startCustomerDate = $item->created_at;
+        $currentDate = Carbon::now();
+        
+        $month = $currentDate->diffInMonths($startCustomerDate);        
         
         $token = isset($item->token) ? $item->token : null;
         return [
@@ -30,6 +37,8 @@ class CustomerTransformer extends TransformerAbstract implements CustomerTransfo
             'first_time_login' => (int) $item->first_time_login,            
             'token' => (string) $token,            
             'avatar' => (object) $avatar,
+            'total_wash_request' => (int) $countWashRequest, 
+            'customer_month_registered' => (int) $month,
             'created_at' => (string) $item->created_at,
             'updated_at' => (string) $item->updated_at,
         ];

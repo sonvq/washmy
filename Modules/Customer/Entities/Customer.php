@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Modules\Customer\Entities\CustomerCarDetail;
 use Modules\Media\Support\Traits\MediaRelation;
 use Modules\Media\Entities\File;
+use Modules\Washrequest\Entities\Washrequest;
 
 class Customer extends Model
 {
@@ -39,5 +40,10 @@ class Customer extends Model
             ->wherePivot('imageable_type', self::class)
             ->wherePivot('zone', self::ZONE_CUSTOMER_AVATAR_IMAGE)
             ->withTimestamps();
+    }
+    
+    public function wash_request()
+    {
+        return $this->hasMany(Washrequest::class, 'customer_id', 'id');
     }
 }
