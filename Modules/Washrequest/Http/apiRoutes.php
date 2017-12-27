@@ -10,6 +10,7 @@ $api->version('v1', function ($api) {
             $api->post('/create-wash-request', ['uses' => 'WashrequestController@createWashRequest', 'as' => 'api.wash-request.create-wash-request']);            
             $api->post('/customer-change-request-status/{id}', ['uses' => 'WashrequestController@customerChangeRequestStatus', 'as' => 'api.wash-request.customer-change-request-status']);            
             $api->post('/customer-request-again/{id}', ['uses' => 'WashrequestController@customerRequestAgain', 'as' => 'api.wash-request.customer-request-again']);            
+            $api->get('/customer-check-current-wash-request', ['uses' => 'WashrequestController@customerCheckCurrentWashRequest', 'as' => 'api.wash-request.customer-check-current-wash-request']);            
         });
         
         $api->group(['middleware' => ['apis.frontend', 'apis.frontend.washer']], function () use ($api) {                        
