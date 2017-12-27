@@ -32,6 +32,15 @@ class Helper {
     const INVALID_TOKEN = 'INVALID_TOKEN';  
     const INVALID_TOKEN_TITLE = 'Invalid token';     
     const INVALID_TOKEN_MSG = 'The given token is invalid';
+    
+    const CAR_DETAIL_NOT_FOUND = 'CAR_DETAIL_NOT_FOUND';  
+    const CAR_DETAIL_NOT_FOUND_TITLE = 'Error message';     
+    const CAR_DETAIL_NOT_FOUND_MSG = 'Car not found or has been deleted';
+
+    const ONLY_CAR_OWNER_ALLOWED = 'ONLY_CAR_OWNER_ALLOWED';  
+    const ONLY_CAR_OWNER_ALLOWED_TITLE = 'Error message';     
+    const ONLY_CAR_OWNER_ALLOWED_MSG = 'Only car owner is allowed';
+    
 
     const USER_NOT_FOUND = 'USER_NOT_FOUND';  
     const USER_NOT_FOUND_TITLE = 'User not found';     

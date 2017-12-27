@@ -26,6 +26,7 @@ use OneSignal;
 use Modules\Notify\Repositories\NotifyRepository;
 use Modules\Notify\Entities\Notify;
 use Modules\Customer\Transformers\CustomerCarDetailTransformerInterface;
+use Modules\Customer\Entities\CustomerCarDetail;
 
 class CustomerController extends BaseController
 {
@@ -71,6 +72,26 @@ class CustomerController extends BaseController
         return $this->response->collection($carDetailList, $this->customer_car_detail_transformer);   
     }
     
+    public function removeCarDetail($id) {
+        $carDetailObject = CustomerCarDetail::find($id);
+        if(!$carDetailObject) {
+            return Helper::notFoundErrorResponse(Helper::CAR_DETAIL_NOT_FOUND,
+                        Helper::CAR_DETAIL_NOT_FOUND_TITLE,
+                        Helper::CAR_DETAIL_NOT_FOUND_MSG);
+        }
+        $currentLoggedUser = Helper::getLoggedUser();
+        
+        if ($carDetailObject->customer_id != $currentLoggedUser->customer_id) {
+            return Helper::notFoundErrorResponse(Helper::ONLY_CAR_OWNER_ALLOWED,
+                        Helper::ONLY_CAR_OWNER_ALLOWED_TITLE,
+                        Helper::ONLY_CAR_OWNER_ALLOWED_MSG);
+        }
+        
+        $carDetailObject->delete();
+        
+        return $this->response->array(['data' => trans('customer::customers.CAR_DETAIL_DELETED')]);
+        
+    }
 
 }
 

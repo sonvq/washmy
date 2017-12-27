@@ -21,4 +21,6 @@ return [
     ],
     'validation' => [
     ],
+    'CAR_DETAIL_DELETED' => 'Car has been deleted successfully'
 ];
+

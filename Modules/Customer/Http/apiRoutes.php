@@ -8,6 +8,7 @@ $api->version('v1', function ($api) {
         
         $api->group(['middleware' => ['apis.frontend', 'apis.frontend.customer']], function () use ($api) {                        
             $api->get('/car-detail-list', ['uses' => 'CustomerController@carDetailList', 'as' => 'api.customer.car-detail-list']);            
+            $api->post('/remove-car-detail/{id}', ['uses' => 'CustomerController@removeCarDetail', 'as' => 'api.customer.remove-car-detail']);            
         });
     });
 
