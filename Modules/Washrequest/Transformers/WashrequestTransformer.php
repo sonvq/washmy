@@ -5,6 +5,9 @@ namespace Modules\Washrequest\Transformers;
 use League\Fractal\TransformerAbstract;
 use Modules\Washrequest\Entities\Washrequest;
 use App\Common\Helper;
+use Modules\Customer\Transformers\CustomerTransformer;
+use Modules\Washer\Transformers\WasherTransformer;
+use Modules\Rating\Transformers\RatingTransformer;
 
 class WashrequestTransformer extends TransformerAbstract implements WashrequestTransformerInterface {
 
@@ -18,13 +21,17 @@ class WashrequestTransformer extends TransformerAbstract implements WashrequestT
         
         $token = isset($item->token) ? $item->token : null;
         
-        $customer = $item->customer;
-        $customer->avatar = $customer->avatar_image->first();
+        $customerObject = $item->customer;
+        $customerTransformer = new CustomerTransformer();
+        $customer = $customerTransformer->transform($customerObject);
         
-        $washer = $item->washer;
-        if ($washer) {
-            $washer->avatar = $washer->avatar_image->first();   
-        }
+        $washerObject = $item->washer;
+        $washerTransformer = new WasherTransformer();
+        $washer = $washerTransformer->transform($washerObject);
+        
+        $ratingObject = $item->rating;
+        $ratingTransformer = new RatingTransformer();
+        $rating = $ratingTransformer->transform($ratingObject);
         
         return [
             'id' => (int) $item->id,
@@ -41,6 +48,7 @@ class WashrequestTransformer extends TransformerAbstract implements WashrequestT
             'status' => (string) $item->status,
             'washer_id' => (int) $item->washer_id,
             'washer' => (object) $washer,
+            'rating' => (object) $rating,
             'created_at' => (string) $item->created_at,
             'updated_at' => (string) $item->updated_at,
         ];

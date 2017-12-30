@@ -25,6 +25,8 @@ class RatingTransformer extends TransformerAbstract implements RatingTransformer
                         
             'washer_id' => (int) $item->washer_id,
             'washer' => (object) $washer,
+            
+            'washrequest_id' => (int) $item->washrequest_id,
            
             'rate_number' => (int) $item->rate_number,
             'rate_comment' => (string) $item->rate_comment,
