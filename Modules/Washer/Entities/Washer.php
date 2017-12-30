@@ -5,6 +5,8 @@ namespace Modules\Washer\Entities;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Media\Support\Traits\MediaRelation;
 use Modules\Media\Entities\File;
+use Modules\Washrequest\Entities\Washrequest;
+use Modules\Rating\Entities\Rating;
 
 class Washer extends Model
 {
@@ -37,5 +39,14 @@ class Washer extends Model
             ->wherePivot('imageable_type', self::class)
             ->wherePivot('zone', self::ZONE_WASHER_AVATAR_IMAGE)
             ->withTimestamps();
+    }
+    
+    public function rating() {
+        return $this->hasMany(Rating::class, 'washer_id', 'id');
+    }
+    
+    public function wash_request()
+    {
+        return $this->hasMany(Washrequest::class, 'washer_id', 'id');
     }
 }

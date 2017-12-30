@@ -6,6 +6,7 @@ use League\Fractal\TransformerAbstract;
 use Modules\Customer\Entities\Customer;
 use App\Common\Helper;
 use Carbon\Carbon;
+use Modules\Washrequest\Entities\Washrequest;
 
 class CustomerTransformer extends TransformerAbstract implements CustomerTransformerInterface {
 
@@ -18,7 +19,7 @@ class CustomerTransformer extends TransformerAbstract implements CustomerTransfo
     public function transform(Customer $item) {
         
         $avatar = $item->avatar_image->first();        
-        $washRequest = $item->wash_request;
+        $washRequest = $item->wash_request->where('status', Washrequest::USER_CONFIRM_REQUEST);
         $countWashRequest = count($washRequest);
         $startCustomerDate = $item->created_at;
         $currentDate = Carbon::now();
