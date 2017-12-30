@@ -20,6 +20,7 @@ class CreateRatingRatingsTable extends Migration
             $table->string('rate_comment')->nullable();
             $table->integer('washer_id')->unsigned()->nullable();
             $table->integer('customer_id')->unsigned()->nullable();
+            $table->integer('washrequest_id')->unsigned()->nullable();
             $table->timestamps();
         });
     }

@@ -14,7 +14,8 @@ class Rating extends Model
         'rate_number',
         'rate_comment',
         'washer_id',
-        'customer_id'
+        'customer_id',
+        'washrequest_id'
     ];
     
     public function customer(){

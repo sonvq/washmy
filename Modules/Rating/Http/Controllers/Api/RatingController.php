@@ -43,6 +43,18 @@ class RatingController extends BaseController
         }
         $currentLoggedUser = Helper::getLoggedUser();
         // Successfull validated data, start to create new reporting
+        
+        // Find existing rating, customer can only rate washer 1 time for 1 request        
+        $ratingObject = Rating::where('customer_id', $currentLoggedUser->customer_id)
+                ->where('washrequest_id', $input['washrequest_id'])
+                ->where('washer_id', $input['washer_id'])
+                ->first();
+        
+        if ($ratingObject) {
+            return Helper::badRequestErrorResponse(Helper::RATING_EXISTED,
+                    Helper::RATING_EXISTED_TITLE,
+                    Helper::RATING_EXISTED_MSG);
+        }
                 
         $input['customer_id'] = $currentLoggedUser->customer_id;
         

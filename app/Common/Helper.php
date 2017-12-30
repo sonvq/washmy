@@ -29,6 +29,10 @@ class Helper {
     const MISSING_TOKEN_TITLE = 'Missing token';
     const MISSING_TOKEN_MSG = 'Token is not provided';
     
+    const RATING_EXISTED = 'RATING_EXISTED';
+    const RATING_EXISTED_TITLE = 'Error message';
+    const RATING_EXISTED_MSG = 'You already rated this washer for this wash request';
+            
     const INVALID_TOKEN = 'INVALID_TOKEN';  
     const INVALID_TOKEN_TITLE = 'Invalid token';     
     const INVALID_TOKEN_MSG = 'The given token is invalid';
