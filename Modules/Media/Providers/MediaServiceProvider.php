@@ -142,6 +142,28 @@ class MediaServiceProvider extends ServiceProvider
                 },
             ],
         ]);
+                
+        $this->app[ThumbnailManager::class]->registerThumbnail('medium', [
+            'resize' => [
+                'width' => 540,
+                'height' => null,
+                'callback' => function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                },
+            ],
+        ]);
+                
+        $this->app[ThumbnailManager::class]->registerThumbnail('large', [
+            'resize' => [
+                'width' => 1080,
+                'height' => null,
+                'callback' => function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                },
+            ],
+        ]);
     }
 
     private function registerBladeTags()

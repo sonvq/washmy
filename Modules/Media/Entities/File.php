@@ -40,7 +40,16 @@ class File extends Model implements TaggableInterface
         'filesize',
         'folder_id',
     ];
-    protected $appends = ['path_string', 'media_type'];
+    protected $appends = [
+        'path_string', 
+        'media_type',
+        
+        'thumb_file_url',
+        'medium_thumb_file_url',        
+        'large_url',
+        'medium_url'
+    ];
+    
     protected static $entityNamespace = 'asgardcms/media';
 
     public function getPathAttribute($value)
@@ -70,5 +79,28 @@ class File extends Model implements TaggableInterface
         }
 
         return false;
+    }
+    
+    /*
+     * Additional thumbnail size
+     */
+    public function getThumbFileUrlAttribute()
+    {
+        return Imagy::getThumbnail($this->path, 'smallThumb');
+    }
+    
+    public function getMediumThumbFileUrlAttribute()
+    {
+        return Imagy::getThumbnail($this->path, 'mediumThumb');
+    }
+    
+    public function getLargeUrlAttribute()
+    {
+        return Imagy::getThumbnail($this->path, 'large');
+    }
+    
+    public function getMediumUrlAttribute()
+    {
+        return Imagy::getThumbnail($this->path, 'medium');
     }
 }
