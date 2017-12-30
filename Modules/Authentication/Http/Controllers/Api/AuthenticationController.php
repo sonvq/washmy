@@ -21,6 +21,8 @@ use App\Common\Helper;
 use Validator;
 use Modules\Media\Services\FileService;
 use Modules\Media\Repositories\FileRepository;
+use Modules\Customer\Entities\Customer;
+use Modules\Washer\Entities\Washer;
 
 class AuthenticationController extends BaseController
 {
@@ -44,6 +46,34 @@ class AuthenticationController extends BaseController
         $this->customer_transformer = $customerTransformerInterface;
         $this->file_repository = $fileRepository;
         $this->file_service = $fileService;
+    }
+    
+    public function getProfileCustomer($id) {
+        $currentLoggedUser = Helper::getLoggedUser();
+        
+        $customerObject = Customer::find($id);
+        
+        if (!$customerObject) {
+            return Helper::unauthorizedErrorResponse(Helper::USER_NOT_FOUND,
+                    Helper::USER_NOT_FOUND_TITLE,
+                    Helper::USER_NOT_FOUND_MSG);
+        }
+        
+        return $this->response->item($customerObject, $this->customer_transformer);
+    }
+    
+    public function getProfileWasher($id) {
+        $currentLoggedUser = Helper::getLoggedUser();
+        
+        $washerObject = Washer::find($id);
+        
+        if (!$washerObject) {
+            return Helper::unauthorizedErrorResponse(Helper::USER_NOT_FOUND,
+                    Helper::USER_NOT_FOUND_TITLE,
+                    Helper::USER_NOT_FOUND_MSG);
+        }
+        
+        return $this->response->item($washerObject, $this->washer_transformer);
     }
     
     public function updateProfile() {
