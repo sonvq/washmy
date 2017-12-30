@@ -23,15 +23,21 @@ class WashrequestTransformer extends TransformerAbstract implements WashrequestT
         
         $customerObject = $item->customer;
         $customerTransformer = new CustomerTransformer();
-        $customer = $customerTransformer->transform($customerObject);
+        if ($customerObject) {
+            $customerObject = $customerTransformer->transform($customerObject);
+        }
         
-        $washerObject = $item->washer;
+        $washerObject = $item->washer;        
         $washerTransformer = new WasherTransformer();
-        $washer = $washerTransformer->transform($washerObject);
+        if ($washerObject) {
+            $washerObject = $washerTransformer->transform($washerObject);
+        }
         
         $ratingObject = $item->rating;
         $ratingTransformer = new RatingTransformer();
-        $rating = $ratingTransformer->transform($ratingObject);
+        if ($ratingObject) {
+            $ratingObject = $ratingTransformer->transform($ratingObject);
+        }
         
         return [
             'id' => (int) $item->id,
