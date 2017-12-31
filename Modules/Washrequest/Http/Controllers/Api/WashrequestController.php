@@ -26,6 +26,7 @@ use OneSignal;
 use Modules\Notify\Repositories\NotifyRepository;
 use Modules\Notify\Entities\Notify;
 use Modules\Washrequest\Entities\Washrequest;
+use Carbon\Carbon;
 
 class WashrequestController extends BaseController
 {
@@ -313,6 +314,7 @@ class WashrequestController extends BaseController
             }
             
             $washRequest->status = Washrequest::USER_REQUESTING;
+            $washRequest->updated_at = Carbon::now();
             $washRequest->save();
 
             // Send push notification again
