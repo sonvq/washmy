@@ -128,6 +128,8 @@ class AuthenticationController extends BaseController
         $input =  $this->request->all();        
         $clientDeviceToken = $this->request->header('DEVICE-TOKEN');
         $clientOS = $this->request->header('DEVICE-TYPE');
+        \Log::info('register - AuthenticationController - $clientDeviceToken = ' . $clientDeviceToken);
+        \Log::info('register - AuthenticationController - $clientOS = ' . $clientOS);
         
         // Validate type customer or washer
         $validateType = $this->validateRequest('api-check-type-register', $input);
