@@ -16,8 +16,8 @@ class EloquentWasherCustomerLoginRepository extends EloquentBaseRepository imple
     public function saveTokenLogin($object, $token) {
         
         $primaryKey = $object->type . '_id';
-        // Delete all the old token of member or agent type
-        WasherCustomerLogin::where($primaryKey, $object->id)->where('type', $object->type)->delete();
+        
+        //WasherCustomerLogin::where($primaryKey, $object->id)->where('type', $object->type)->delete();
         
         $loginObject = new WasherCustomerLogin();
         $loginObject->$primaryKey = $object->id;        
