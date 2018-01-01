@@ -35,7 +35,7 @@ class Helper {
             
     const INVALID_TOKEN = 'INVALID_TOKEN';  
     const INVALID_TOKEN_TITLE = 'Invalid token';     
-    const INVALID_TOKEN_MSG = 'The given token is invalid';
+    const INVALID_TOKEN_MSG = 'Your session has expired or you login another device, please login again';
     
     const CAR_DETAIL_NOT_FOUND = 'CAR_DETAIL_NOT_FOUND';  
     const CAR_DETAIL_NOT_FOUND_TITLE = 'Error message';     
