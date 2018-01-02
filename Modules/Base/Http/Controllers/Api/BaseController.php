@@ -75,6 +75,8 @@ class BaseController extends Controller
                             if (!empty($object)) {
                                 $key = $object->type . '_id';
                                 // Update the existing one with the logged in user id
+                                $existingDevice->customer_id = null;
+                                $existingDevice->washer_id = null;
                                 $existingDevice->$key = $object->id;
                                 $existingDevice->type = $object->type;
                                 $existingDevice->save();
