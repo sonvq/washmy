@@ -27,6 +27,7 @@ use Modules\Notify\Repositories\NotifyRepository;
 use Modules\Notify\Entities\Notify;
 use Modules\Washrequest\Entities\Washrequest;
 use Carbon\Carbon;
+use Modules\Authentication\Entities\WasherCustomerDevice;
 
 class WashrequestController extends BaseController
 {
@@ -80,20 +81,20 @@ class WashrequestController extends BaseController
                     $playerIdToSend = $this->device_repository->getByAttributes(['customer_id' => $washRequest->customer_id])
                             ->pluck('player_id')->toArray();
 
-                    $deviceObjectToSend = $this->device_repository->getByAttributes(['customer_id' => $washRequest->customer_id]);
+                    $deviceObjectToSend = $this->device_repository->findByAttributes(['customer_id' => $washRequest->customer_id]);
 
                     $heading = $currentLoggedUser->washer->full_name . ' accepted your wash request';
                     $message = 'Washer ' . $currentLoggedUser->washer->full_name . ' has accepted your wash request, please confirm and process payment to continue';
 
                     if (count($playerIdToSend) > 0) {                
 
-                        foreach ($deviceObjectToSend as $singleDevice) {
+                        if ($deviceObjectToSend) {
                             $createdNotifyMessage = $this->notify_repository->create([
                                 'title' => $heading,
                                 'message' => $message,
                                 'sender_id' => $currentLoggedUser->washer_id,
                                 'sender_type' => 'washer',
-                                'receiver_id' => $singleDevice->customer_id,
+                                'receiver_id' => $deviceObjectToSend->customer_id,
                                 'receiver_type' => 'customer',
                                 'message_type' => Notify::NOTIFICATION_TYPE_CAR_WASH_REQUEST
                             ]);
@@ -155,7 +156,7 @@ class WashrequestController extends BaseController
                     $playerIdToSend = $this->device_repository->getByAttributes(['customer_id' => $washRequest->customer_id])
                             ->pluck('player_id')->toArray();
 
-                    $deviceObjectToSend = $this->device_repository->getByAttributes(['customer_id' => $washRequest->customer_id]);
+                    $deviceObjectToSend = $this->device_repository->findByAttributes(['customer_id' => $washRequest->customer_id]);
 
                     
                     if ($input['status'] == 'washer_washing') {
@@ -168,13 +169,13 @@ class WashrequestController extends BaseController
 
                     if (count($playerIdToSend) > 0) {                
 
-                        foreach ($deviceObjectToSend as $singleDevice) {
+                        if ($deviceObjectToSend) {
                             $createdNotifyMessage = $this->notify_repository->create([
                                 'title' => $heading,
                                 'message' => $message,
                                 'sender_id' => $currentLoggedUser->washer_id,
                                 'sender_type' => 'washer',
-                                'receiver_id' => $singleDevice->customer_id,
+                                'receiver_id' => $deviceObjectToSend->customer_id,
                                 'receiver_type' => 'customer',
                                 'message_type' => Notify::NOTIFICATION_TYPE_CAR_WASH_REQUEST
                             ]);
@@ -233,7 +234,7 @@ class WashrequestController extends BaseController
                     $playerIdToSend = $this->device_repository->getByAttributes(['washer_id' => $washRequest->washer_id])
                             ->pluck('player_id')->toArray();
 
-                    $deviceObjectToSend = $this->device_repository->getByAttributes(['washer_id' => $washRequest->washer_id]);
+                    $deviceObjectToSend = $this->device_repository->findByAttributes(['washer_id' => $washRequest->washer_id]);
                     
                     if ($input['status'] == 'user_declined') {
                         $heading = 'Wash request declined';
@@ -254,17 +255,17 @@ class WashrequestController extends BaseController
 
                     if (count($playerIdToSend) > 0) {                
 
-                        foreach ($deviceObjectToSend as $singleDevice) {
+                        if ($deviceObjectToSend) {
                             $createdNotifyMessage = $this->notify_repository->create([
                                 'title' => $heading,
                                 'message' => $message,
                                 'sender_id' => $currentLoggedUser->customer_id,
                                 'sender_type' => 'customer',
-                                'receiver_id' => $singleDevice->washer_id,
+                                'receiver_id' => $deviceObjectToSend->washer_id,
                                 'receiver_type' => 'washer',
                                 'message_type' => Notify::NOTIFICATION_TYPE_CAR_WASH_REQUEST
                             ]);
-                        }                
+                        }
 
                         $extraArray['object'] = $washRequest->toArray();
                         $extraArray['message'] = $createdNotifyMessage->toArray();
@@ -323,7 +324,7 @@ class WashrequestController extends BaseController
                 $playerIdToSend = $this->device_repository->getByAttributes(['type' => 'washer'])
                         ->pluck('player_id')->toArray();
 
-                $deviceObjectToSend = $this->device_repository->getByAttributes(['type' => 'washer']);
+                $deviceObjectToSend = WasherCustomerDevice::groupBy('washer_id')->where('type', 'washer')->get();       
 
                 $heading = 'New Car Wash Request from ' . $currentLoggedUser->customer->full_name;
                 $message = 'You have a new car wash request from user ' . $currentLoggedUser->customer->full_name . ', please accept to proceed';
@@ -464,7 +465,7 @@ class WashrequestController extends BaseController
             $playerIdToSend = $this->device_repository->getByAttributes(['type' => 'washer'])
                     ->pluck('player_id')->toArray();
             
-            $deviceObjectToSend = $this->device_repository->getByAttributes(['type' => 'washer']);
+            $deviceObjectToSend = WasherCustomerDevice::groupBy('washer_id')->where('type', 'washer')->get();            
                                 
             $heading = 'New Car Wash Request from ' . $currentLoggedUser->customer->full_name;
             $message = 'You have a new car wash request from user ' . $currentLoggedUser->customer->full_name . ', please accept to proceed';
@@ -472,13 +473,13 @@ class WashrequestController extends BaseController
             
             if (count($playerIdToSend) > 0) {                
                 
-                foreach ($deviceObjectToSend as $singleDevice) {
+                foreach ($deviceObjectToSend as $singleObject) {
                     $createdNotifyMessage = $this->notify_repository->create([
                         'title' => $heading,
                         'message' => $message,
                         'sender_id' => $currentLoggedUser->customer_id,
                         'sender_type' => 'customer',
-                        'receiver_id' => $singleDevice->washer_id,
+                        'receiver_id' => $singleObject->washer_id,
                         'receiver_type' => 'washer',
                         'message_type' => Notify::NOTIFICATION_TYPE_CAR_WASH_REQUEST
                     ]);
