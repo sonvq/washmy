@@ -12,6 +12,7 @@ use Modules\Media\Events\FileWasUpdated;
 use Modules\Media\Helpers\FileHelper;
 use Modules\Media\Repositories\FileRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Carbon\Carbon;
 
 class EloquentFileRepository extends EloquentBaseRepository implements FileRepository
 {
@@ -40,7 +41,14 @@ class EloquentFileRepository extends EloquentBaseRepository implements FileRepos
      */
     public function createFromFile(UploadedFile $file)
     {
+        $current_timestamp = Carbon::now()->timestamp;   
+
         $fileName = FileHelper::slug($file->getClientOriginalName());
+        
+        $fileNameOnly = pathinfo($fileName, PATHINFO_FILENAME);
+        $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+                
+        $fileName = $fileNameOnly . '_' . $current_timestamp . '.' . $extension;
 
         $exists = $this->model->whereFilename($fileName)->first();
 
