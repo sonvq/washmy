@@ -66,5 +66,10 @@ class WashrequestServiceProvider extends ServiceProvider
             'Modules\Washrequest\Transformers\WashrequestTransformerInterface', 
             "Modules\\Washrequest\\Transformers\\WashrequestTransformer"
         );
+        
+        $this->app->bind(
+            'Modules\Washrequest\Transformers\CurrentWashrequestTransformerInterface', 
+            "Modules\\Washrequest\\Transformers\\CurrentWashrequestTransformer"
+        );
     }
 }

@@ -20,6 +20,7 @@ use Modules\Customer\Repositories\CustomerRepository;
 use App\Common\Helper;
 use Modules\Washrequest\Repositories\WashrequestRepository;
 use Modules\Washrequest\Transformers\WashrequestTransformerInterface;
+use Modules\Washrequest\Transformers\CurrentWashrequestTransformerInterface;
 use Modules\Customer\Repositories\CustomerCarDetailRepository;
 use Modules\Authentication\Repositories\WasherCustomerDeviceRepository;
 use OneSignal;
@@ -44,7 +45,8 @@ class WashrequestController extends BaseController
             
             WasherTransformerInterface $washerTransformerInterface,
             CustomerTransformerInterface $customerTransformerInterface,
-            WashrequestTransformerInterface $washrequestTransformerInterface)
+            WashrequestTransformerInterface $washrequestTransformerInterface,
+            CurrentWashrequestTransformerInterface $currentWashrequestTransformerInterface)
     {
         
         $this->request = $request;
@@ -59,6 +61,8 @@ class WashrequestController extends BaseController
         $this->washer_transformer = $washerTransformerInterface;
         $this->customer_transformer = $customerTransformerInterface;
         $this->washrequest_transformer = $washrequestTransformerInterface;
+        $this->current_washrequest_transformer = $currentWashrequestTransformerInterface;
+        
     }
     
     public function washerAcceptRequest($id) {
@@ -429,12 +433,10 @@ class WashrequestController extends BaseController
                 
         $currentWashRequest = $this->wash_request_repository->findCurrentRunningWashRequest($currentLoggedUser->customer_id);
 
-        if ($currentWashRequest) {       
-            return $this->response->item($currentWashRequest, $this->washrequest_transformer);   
+        if ($currentWashRequest) {   
+            return $this->response->item($currentWashRequest, $this->current_washrequest_transformer);   
         } else {
-            return Helper::notFoundErrorResponse(Helper::WASH_REQUEST_NOT_FOUND,
-                        Helper::WASH_REQUEST_NOT_FOUND_TITLE,
-                        Helper::WASH_REQUEST_NOT_FOUND_MSG);
+            return $this->response->item(new Washrequest(), $this->current_washrequest_transformer);   
         }
         
     }
