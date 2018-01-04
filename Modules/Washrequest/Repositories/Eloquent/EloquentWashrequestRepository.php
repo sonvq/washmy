@@ -23,6 +23,27 @@ class EloquentWashrequestRepository extends EloquentBaseRepository implements Wa
         
     }
     
+    public function getCustomerCurrentRequestList($input, $perPage, $customerId) {
+        $query = $this->model
+                ->where('customer_id', $customerId)
+                ->whereIn('status', [
+                    'user_requesting',
+                    'washer_accepted',
+                    'user_accept_pay',
+                    'user_payment_done',
+                    'washer_washing',
+                    'washer_done'
+                ])
+                ->orderBy('created_at', 'desc');
+        if (isset($input['date_from']) && !empty($input['date_from'])) {            
+            $query = $query->where('created_at', '>=', $input['date_from'] . ' 00:00:00');
+        }
+        if (isset($input['date_to']) && !empty($input['date_to'])) {
+            $query = $query->where('created_at', '<=', $input['date_to'] . ' 23:59:59');
+        }
+        return $query->paginate($perPage);
+    }
+    
     public function getWashRequestListWasher($input, $perPage, $washerId) {
         $query = $this->model
                 ->where('washer_id', $washerId)

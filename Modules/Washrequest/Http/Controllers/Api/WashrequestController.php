@@ -383,6 +383,21 @@ class WashrequestController extends BaseController
         return $this->response->item($washRequest, $this->washrequest_transformer);  
     }
     
+    public function customerCurrentRequestList() {
+        // Change all existing pending washrequest > 120 seconds to expired request
+        $expiredWashRequest = $this->wash_request_repository->updateExpiredRequest();
+        
+        $input = $this->request->all();
+        $perPage = (isset($input['per_page']) && $input['per_page'] > 0) ? $input['per_page'] : 15;
+        
+        $currentLoggedUser = Helper::getLoggedUser();
+
+        $washRequestList = $this->wash_request_repository
+                ->getCustomerCurrentRequestList($input, $perPage, $currentLoggedUser->customer_id);
+
+        return $this->response->paginator($washRequestList, $this->washrequest_transformer);
+    }
+    
     public function listWashRequest() {
         // Change all existing pending washrequest > 120 seconds to expired request
         $expiredWashRequest = $this->wash_request_repository->updateExpiredRequest();
@@ -405,6 +420,9 @@ class WashrequestController extends BaseController
     }
     
     public function customerCheckCurrentWashRequest() {
+        // Change all existing pending washrequest > 120 seconds to expired request
+        $expiredWashRequest = $this->wash_request_repository->updateExpiredRequest();
+        
         $input =  $this->request->all();                
         
         $currentLoggedUser = Helper::getLoggedUser();
