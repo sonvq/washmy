@@ -77,7 +77,7 @@ class RatingController extends BaseController
 
             $heading = 'You received a rating from a customer';
             $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' rate ' . $input['rate_number'] . ' star for your washing service';
-            $washRequestObject = Washrequest::where('id', $input['washer_id'])->first();
+            $washRequestObject = Washrequest::where('id', $input['washrequest_id'])->first();
 
             if (count($playerIdToSend) > 0) {                
 
