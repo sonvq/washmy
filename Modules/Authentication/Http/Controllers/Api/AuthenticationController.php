@@ -23,6 +23,9 @@ use Modules\Media\Services\FileService;
 use Modules\Media\Repositories\FileRepository;
 use Modules\Customer\Entities\Customer;
 use Modules\Washer\Entities\Washer;
+use App\Common\FacebookWrapper;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Carbon\Carbon;
 
 class AuthenticationController extends BaseController
 {
@@ -339,7 +342,207 @@ class AuthenticationController extends BaseController
             }
         }    
     }
+    
+     /**
+	 *	Authenticate a user based on Facebook access token. If the email address from facebook is already in the database, 
+	 *	the facebook user id will be added. 
+	 *	If not, a new user will be created with a random password and user info from facebook.
+	 */
+	public function authenticateFacebook() {
 
+		$input =  $this->request->all();        
+        $clientDeviceToken = $this->request->header('DEVICE-TOKEN');
+        $clientOS = $this->request->header('DEVICE-TYPE');
+        \Log::info('register - AuthenticationController - $clientDeviceToken = ' . $clientDeviceToken);
+        \Log::info('register - AuthenticationController - $clientOS = ' . $clientOS);
+                
+        $validateLoginFacebook = $this->validateRequest('api-login-facebook', $input);
+        if ($validateLoginFacebook !== true) {
+            return $validateLoginFacebook;
+        }        
 
+        $facebook = new FacebookWrapper();
+        $facebook->loginAsUser($input['access_token']);
+        \Log::info('A user call signed in with input: ' . json_encode($input));
+        /*
+         * Scope email => email
+         * me?fields=id,email,first_name,last_name,name,middle_name,gender
+         */
+        $fields = 'id,email,first_name,last_name,name,middle_name,gender';
+        $profile = $facebook->getMe(array(
+            'fields' => $fields)
+        );
+
+        if ( is_array($profile) && isset($profile['error']) ) {
+            $errorArr = array($profile['error']);
+            $firstError = 'Can not login facebook, please try again later';
+            if (count($errorArr) > 0) {
+                $firstError = $errorArr[0];    
+            }
+            
+            return Helper::badRequestErrorResponse(Helper::FACEBOOK_ERROR,
+                    Helper::FACEBOOK_ERROR_TITLE,
+                    $firstError);
+        }
+
+        $token  = Password::getRepository()->createNewToken();
+        
+        //Log::info( json_encode( $profile->asArray() ) );
+        // find customer or washer sticking to the facebook id
+        $existingCustomer = Customer::where('facebook_id', '=', $profile->getId())->first();
+        $existingWasher = Washer::where('facebook_id', '=', $profile->getId())->first();
+        if ($existingCustomer) {                        
+            $this->washer_customer_login_repository->saveTokenLogin($existingCustomer, $token);
+            $this->customer_repository->update($existingCustomer, [
+                'first_time_login' => 0,
+            ]);
+            $existingCustomer->token = $token;
+
+            if (!empty($clientDeviceToken) && !empty($clientOS)) {
+                $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $existingCustomer);
+            }
+            return $this->response->item($existingCustomer, $this->customer_transformer);           
+        } 
+        
+        if ($existingWasher) {
+            $this->washer_customer_login_repository->saveTokenLogin($existingWasher, $token);
+            $this->washer_repository->update($existingWasher, [
+                'first_time_login' => 0,
+            ]);
+            $existingWasher->token = $token;
+
+            if (!empty($clientDeviceToken) && !empty($clientOS)) {
+                $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $existingWasher);
+            }
+            return $this->response->item($existingWasher, $this->washer_transformer);
+        }
+        
+        // There is no existing customer or washer, create a new one
+        // Validate type customer or washer
+        $validateType = $this->validateRequest('api-check-type-register', $input);
+        if ($validateType !== true) {
+            return $validateType;
+        }
+        
+        $type = $input['type'];
+        
+        // Create an account if none is found        
+        $facebook_email = $profile->getProperty('id') . '@facebook.com';                          
+                
+        $facebook_id = $profile->getId();
+        $facebook_password = Hash::make('washmycar#secret');
+        $facebook_full_name = !empty($profile->getName()) ? $profile->getName() : null;           
+
+        $facebook_image = 'http://graph.facebook.com/' . $profile->getId() . '/picture?width=9999';    
+        
+        $profileImageFolder = '/profile_facebook_image/';
+        if (!is_dir(public_path() . $profileImageFolder)) {
+            mkdir(public_path() . $profileImageFolder, 0777, true);
+        }
+
+        $userProfileImageFolder = $profileImageFolder . $facebook_id . '/';
+        if (!is_dir(public_path() . $userProfileImageFolder)) {
+            mkdir(public_path() . $userProfileImageFolder, 0777, true);
+        }
+
+        $facebook_image_name = 'avatar_facebook_' . uniqid() . '_' . time() . '.jpg';
+        
+        $profileImageSaveLinkFull = public_path() . $userProfileImageFolder . $facebook_image_name;
+        $arrContextOptions = array(
+            "ssl" => array(
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ),
+        );                                
+        
+        $canSaveAvatar = false;
+        $client = new \GuzzleHttp\Client();
+        try {
+            $client->request('GET', $facebook_image, ['sink' => $profileImageSaveLinkFull]);
+            $canSaveAvatar = true;
+        } catch (Exception $ex) {
+            \Log::info('Can not save facebook avatar - authenticateFacebook - AuthenticationController');
+        }
+
+        if ($type == 'customer') {
+            // Validate customer registration
+            $validateCustomer = $this->validateRequest('api-check-customer-facebook-register', $input);
+            if ($validateCustomer !== true) {
+                return $validateCustomer;
+            }
+                        
+            // Successfull validated data, start to create new washer
+            $createdCustomer = $this->customer_repository->create([
+                'email' => $facebook_email,
+                'password' => $facebook_password,
+                'full_name' => $facebook_full_name,
+                'phone_number' => $input['phone_number'],   
+                'facebook_id' => $facebook_id,
+                'type' => WasherCustomerLogin::CUSTOMER_TYPE
+            ]);
+            
+            $this->washer_customer_login_repository->saveTokenLogin($createdCustomer, $token);
+            
+            if ($facebook_image) {
+                if ($canSaveAvatar) {
+                    $uploadedFile = new UploadedFile($profileImageSaveLinkFull, $facebook_image_name);
+                    Helper::uploadMediaFile($this->file_service, 
+                                        $this->file_repository, 
+                                        $uploadedFile, 
+                                        Customer::ZONE_CUSTOMER_AVATAR_IMAGE, $createdCustomer, Customer::class);
+                }
+            }
+            
+            $customerReturned = $this->customer_repository->find($createdCustomer->id);
+            
+            if (!empty($clientDeviceToken) && !empty($clientOS)) {
+                $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $customerReturned);
+            }
+            
+            $customerReturned->token = $token;
+            return $this->response->item($customerReturned, $this->customer_transformer);
+            
+        } else if ($type == 'washer') {
+            // Validate washer registration
+            $validateWasher = $this->validateRequest('api-check-washer-facebook-register', $input);
+            if ($validateWasher !== true) {
+                return $validateWasher;
+            }
+            
+            // Successfull validated data, start to create new washer
+            $createdWasher = $this->washer_repository->create([
+                'email' => $facebook_email,
+                'password' => $facebook_password,
+                'full_name' => $facebook_full_name,
+                'phone_number' => $input['phone_number'],
+                'employment_type' => $input['employment_type'], 
+                'facebook_id' => $facebook_id,
+                'type' => WasherCustomerLogin::WASHER_TYPE
+            ]);
+            
+            $this->washer_customer_login_repository->saveTokenLogin($createdWasher, $token);
+            
+            if ($facebook_image) {
+                if ($canSaveAvatar) {
+                    $uploadedFile = new UploadedFile($profileImageSaveLinkFull, $facebook_image_name);
+                    Helper::uploadMediaFile($this->file_service, 
+                                        $this->file_repository, 
+                                        $uploadedFile, 
+                                        Washer::ZONE_WASHER_AVATAR_IMAGE, $createdWasher, Washer::class);
+                }
+            }
+            
+            $washerReturned = $this->washer_repository->find($createdWasher->id);
+            
+            if (!empty($clientDeviceToken) && !empty($clientOS)) {
+                $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $washerReturned);
+            }
+            
+            $washerReturned->token = $token;
+            return $this->response->item($washerReturned, $this->washer_transformer);
+        }                                                          
+		
+	}
+    
 }
 

@@ -16,6 +16,16 @@ return [
         ]
     ],
     
+    'api-login-facebook' => [
+        'rules' => [
+            'access_token' => 'required'
+        ],
+        'messages' => [
+            
+        ]
+    ],
+    
+    
     'api-check-washer-register' => [
         'rules' => [
             'email' => 'required|email|unique:users,email|unique:washer__washers,email|unique:customer__customers,email|max:255',
@@ -27,7 +37,26 @@ return [
         'messages' => [
             
         ]
-    ],    
+    ],   
+    
+    'api-check-washer-facebook-register' => [
+        'rules' => [            
+            'phone_number' => 'required|max:255',
+            'employment_type' => 'required|in:employed,self_employed,student,homemaker'
+        ],
+        'messages' => [
+            
+        ]
+    ],     
+    
+    'api-check-customer-facebook-register' => [
+        'rules' => [                        
+            'phone_number' => 'required|max:255',
+        ],
+        'messages' => [
+            
+        ]
+    ],
     
     'api-check-customer-register' => [
         'rules' => [

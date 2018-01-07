@@ -29,7 +29,8 @@
         "idavoll/flatly-theme": "~2.0",
         "idavoll/adminlte-theme": "~2.0",
         "laravel/tinker": "~1.0",
-        "sonvq/onesignal-laravel": "^1.0"
+        "sonvq/onesignal-laravel": "^1.0",
+        "facebook/php-sdk-v4" : "~4.0.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

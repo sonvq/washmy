@@ -50,6 +50,10 @@ class Helper {
     const USER_NOT_FOUND_TITLE = 'User not found';     
     const USER_NOT_FOUND_MSG = 'User does not exist or has been deleted';
     
+    const FACEBOOK_ERROR = 'FACEBOOK_ERROR';  
+    const FACEBOOK_ERROR_TITLE = 'Error message';     
+    
+    
     const WRONG_NOW_PASSWORD = 'WRONG_NOW_PASSWORD';  
     const WRONG_NOW_PASSWORD_TITLE = 'Error message';     
     const WRONG_NOW_PASSWORD_MSG = 'Old password is not correct';
