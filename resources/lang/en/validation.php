@@ -80,6 +80,7 @@ return [
     'unique'               => 'The :attribute has already been taken.',
     'url'                  => 'The :attribute format is invalid.',
 
+    'image_extension' => 'The :attribute has wrong image extension, only jpg, png, jpeg and gif allowed',
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines

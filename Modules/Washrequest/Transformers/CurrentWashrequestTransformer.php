@@ -19,7 +19,7 @@ class CurrentWashrequestTransformer extends TransformerAbstract implements Curre
      * @return array
      */
     public function transform($item) {
-        $washRequestObject = new \stdClass();
+        $washRequestObject = null;
         
         if ($item->id != null) {
             $washRequestTransformer = new WashrequestTransformer();
@@ -41,7 +41,7 @@ class CurrentWashrequestTransformer extends TransformerAbstract implements Curre
         }        
         
         return [
-            'wash_request_object' => (object) $washRequestObject,
+            'wash_request_object' => $washRequestObject,
             'count_current_request' => (int) $countCurrentRequest,            
         ];
     }

@@ -19,6 +19,7 @@ use Modules\Rating\Transformers\RatingTransformerInterface;
 use Modules\Notify\Entities\Notify;
 use Modules\Authentication\Repositories\WasherCustomerDeviceRepository;
 use Modules\Notify\Repositories\NotifyRepository;
+use Modules\Washrequest\Entities\Washrequest;
 
 class RatingController extends BaseController
 {
@@ -76,6 +77,7 @@ class RatingController extends BaseController
 
             $heading = 'You received a rating from a customer';
             $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' rate ' . $input['rate_number'] . ' star for your washing service';
+            $washRequestObject = Washrequest::where('id', $input['washrequest_id'])->first();
 
             if (count($playerIdToSend) > 0) {                
 
@@ -90,8 +92,9 @@ class RatingController extends BaseController
                         'message_type' => Notify::NOTIFICATION_TYPE_CAR_WASH_REQUEST
                     ]);
                 }
+                $washRequestObject->rating;
 
-                $extraArray['object'] = $createdRating->toArray();
+                $extraArray['object'] = $washRequestObject->toArray();
                 $extraArray['message'] = $createdNotifyMessage->toArray();
 
                 /*
