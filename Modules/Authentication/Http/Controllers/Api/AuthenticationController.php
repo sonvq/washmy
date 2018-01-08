@@ -430,8 +430,7 @@ class AuthenticationController extends BaseController
         $facebook_email = $profile->getProperty('id') . '@facebook.com';                          
                 
         $facebook_id = $profile->getId();
-        $facebook_password = Hash::make('washmycar#secret');
-        $facebook_full_name = !empty($profile->getName()) ? $profile->getName() : null;           
+        $facebook_password = Hash::make('washmycar#secret');        
 
         $facebook_image = 'http://graph.facebook.com/' . $profile->getId() . '/picture?width=9999';    
         
@@ -470,7 +469,9 @@ class AuthenticationController extends BaseController
             if ($validateCustomer !== true) {
                 return $validateCustomer;
             }
-                        
+                       
+            $facebook_full_name = $input['full_name'];
+            
             // Successfull validated data, start to create new washer
             $createdCustomer = $this->customer_repository->create([
                 'email' => $facebook_email,
@@ -508,6 +509,8 @@ class AuthenticationController extends BaseController
             if ($validateWasher !== true) {
                 return $validateWasher;
             }
+            
+            $facebook_full_name = $input['full_name'];
             
             // Successfull validated data, start to create new washer
             $createdWasher = $this->washer_repository->create([

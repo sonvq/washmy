@@ -42,7 +42,8 @@ return [
     'api-check-washer-facebook-register' => [
         'rules' => [            
             'phone_number' => 'required|max:255',
-            'employment_type' => 'required|in:employed,self_employed,student,homemaker'
+            'employment_type' => 'required|in:employed,self_employed,student,homemaker',
+            'full_name' => 'required|max:255',
         ],
         'messages' => [
             
@@ -52,6 +53,7 @@ return [
     'api-check-customer-facebook-register' => [
         'rules' => [                        
             'phone_number' => 'required|max:255',
+            'full_name' => 'required|max:255',
         ],
         'messages' => [
             
