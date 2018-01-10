@@ -353,8 +353,8 @@ class AuthenticationController extends BaseController
 		$input =  $this->request->all();        
         $clientDeviceToken = $this->request->header('DEVICE-TOKEN');
         $clientOS = $this->request->header('DEVICE-TYPE');
-        \Log::info('register - AuthenticationController - $clientDeviceToken = ' . $clientDeviceToken);
-        \Log::info('register - AuthenticationController - $clientOS = ' . $clientOS);
+        \Log::info('authenticateFacebook - AuthenticationController - $clientDeviceToken = ' . $clientDeviceToken);
+        \Log::info('authenticateFacebook - AuthenticationController - $clientOS = ' . $clientOS);
                 
         $validateLoginFacebook = $this->validateRequest('api-login-facebook', $input);
         if ($validateLoginFacebook !== true) {

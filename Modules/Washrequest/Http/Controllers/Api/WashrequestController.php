@@ -82,10 +82,10 @@ class WashrequestController extends BaseController
 
                 // Push notification to user
                 try {
-                    $playerIdToSend = $this->device_repository->getByAttributes(['customer_id' => $washRequest->customer_id])
+                    $playerIdToSend = $this->device_repository->getByAttributes(['customer_id' => $washRequest->customer_id, 'type' => 'customer'])
                             ->pluck('player_id')->toArray();
 
-                    $deviceObjectToSend = $this->device_repository->findByAttributes(['customer_id' => $washRequest->customer_id]);
+                    $deviceObjectToSend = $this->device_repository->findByAttributes(['customer_id' => $washRequest->customer_id, 'type' => 'customer']);
 
                     $heading = $currentLoggedUser->washer->full_name . ' accepted your wash request';
                     $message = 'Washer ' . $currentLoggedUser->washer->full_name . ' has accepted your wash request, please confirm and process payment to continue';
@@ -157,10 +157,10 @@ class WashrequestController extends BaseController
                 
                 // Push notification to user
                 try {
-                    $playerIdToSend = $this->device_repository->getByAttributes(['customer_id' => $washRequest->customer_id])
+                    $playerIdToSend = $this->device_repository->getByAttributes(['customer_id' => $washRequest->customer_id, 'type' => 'customer'])
                             ->pluck('player_id')->toArray();
 
-                    $deviceObjectToSend = $this->device_repository->findByAttributes(['customer_id' => $washRequest->customer_id]);
+                    $deviceObjectToSend = $this->device_repository->findByAttributes(['customer_id' => $washRequest->customer_id, 'type' => 'customer']);
 
                     
                     if ($input['status'] == 'washer_washing') {
@@ -233,60 +233,62 @@ class WashrequestController extends BaseController
                 $washRequest->status = $input['status'];
                 $washRequest->save();
                 
-                // Push notification to washer
-                try {
-                    $playerIdToSend = $this->device_repository->getByAttributes(['washer_id' => $washRequest->washer_id])
-                            ->pluck('player_id')->toArray();
+                if (!empty($washRequest->washer_id)) {
+                    // Push notification to washer
+                    try {
+                        $playerIdToSend = $this->device_repository->getByAttributes(['washer_id' => $washRequest->washer_id, 'type' => 'washer'])
+                                ->pluck('player_id')->toArray();
 
-                    $deviceObjectToSend = $this->device_repository->findByAttributes(['washer_id' => $washRequest->washer_id]);
-                    
-                    if ($input['status'] == 'user_declined') {
-                        $heading = 'Wash request declined';
-                        $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' declined your wash request';
-                    } else if ($input['status'] == 'user_accept_pay') {
-                        $heading = 'Wash request accepted and processing payment';
-                        $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' has accepted your submission and making payment';
-                    } else if ($input['status'] == 'user_payment_done') {
-                        $heading = 'Wash request payment done';
-                        $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' has done the payment, please start your washing work';
-                    } else if ($input['status'] == 'user_cancel_request') {
-                        $heading = 'Wash request cancelled';
-                        $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' has cancelled the wash request';
-                    } else if ($input['status'] == 'user_confirm_request') {
-                        $heading = 'Wash request confirmed';
-                        $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' has confirmed your washing as done, congratulation!!!';
-                    }
+                        $deviceObjectToSend = $this->device_repository->findByAttributes(['washer_id' => $washRequest->washer_id, 'type' => 'washer']);
 
-                    if (count($playerIdToSend) > 0) {                
-
-                        if ($deviceObjectToSend) {
-                            $createdNotifyMessage = $this->notify_repository->create([
-                                'title' => $heading,
-                                'message' => $message,
-                                'sender_id' => $currentLoggedUser->customer_id,
-                                'sender_type' => 'customer',
-                                'receiver_id' => $deviceObjectToSend->washer_id,
-                                'receiver_type' => 'washer',
-                                'message_type' => Notify::NOTIFICATION_TYPE_CAR_WASH_REQUEST
-                            ]);
+                        if ($input['status'] == 'user_declined') {
+                            $heading = 'Wash request declined';
+                            $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' declined your wash request';
+                        } else if ($input['status'] == 'user_accept_pay') {
+                            $heading = 'Wash request accepted and processing payment';
+                            $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' has accepted your submission and making payment';
+                        } else if ($input['status'] == 'user_payment_done') {
+                            $heading = 'Wash request payment done';
+                            $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' has done the payment, please start your washing work';
+                        } else if ($input['status'] == 'user_cancel_request') {
+                            $heading = 'Wash request cancelled';
+                            $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' has cancelled the wash request';
+                        } else if ($input['status'] == 'user_confirm_request') {
+                            $heading = 'Wash request confirmed';
+                            $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' has confirmed your washing as done, congratulation!!!';
                         }
 
-                        $extraArray['object'] = $washRequest->toArray();
-                        $extraArray['message'] = $createdNotifyMessage->toArray();
+                        if (count($playerIdToSend) > 0) {                
 
-                        /*
-                        * Send Push notification to OneSignal
-                        */                
-                        OneSignal::sendNotificationToUser(
-                            $message, 
-                            $playerIdToSend, 
-                            $heading, 
-                            $extraArray
-                        );  
-                        \Log::info('WashrequestController - customerChangeRequestStatus - Push notification success to player id: ' . print_r($playerIdToSend, true));
+                            if ($deviceObjectToSend) {
+                                $createdNotifyMessage = $this->notify_repository->create([
+                                    'title' => $heading,
+                                    'message' => $message,
+                                    'sender_id' => $currentLoggedUser->customer_id,
+                                    'sender_type' => 'customer',
+                                    'receiver_id' => $deviceObjectToSend->washer_id,
+                                    'receiver_type' => 'washer',
+                                    'message_type' => Notify::NOTIFICATION_TYPE_CAR_WASH_REQUEST
+                                ]);
+                            }
+
+                            $extraArray['object'] = $washRequest->toArray();
+                            $extraArray['message'] = $createdNotifyMessage->toArray();
+
+                            /*
+                            * Send Push notification to OneSignal
+                            */                
+                            OneSignal::sendNotificationToUser(
+                                $message, 
+                                $playerIdToSend, 
+                                $heading, 
+                                $extraArray
+                            );  
+                            \Log::info('WashrequestController - customerChangeRequestStatus - Push notification success to player id: ' . print_r($playerIdToSend, true));
+                        }
+                    } catch (\Exception $e) {
+                        \Log::error('WashrequestController - customerChangeRequestStatus - Push notification error: ' . $e->getMessage());
                     }
-                } catch (\Exception $e) {
-                    \Log::error('WashrequestController - customerChangeRequestStatus - Push notification error: ' . $e->getMessage());
                 }
                 
                 

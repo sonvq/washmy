@@ -68,48 +68,50 @@ class RatingController extends BaseController
         
         $createdRating = $this->rating_repository->create($input);
         
-        // Push notification to washer
-        try {
-            $playerIdToSend = $this->device_repository->getByAttributes(['washer_id' => $input['washer_id']])
-                    ->pluck('player_id')->toArray();
+        if (isset($input['washer_id']) && !empty($input['washer_id'])) {
+            // Push notification to washer
+            try {
+                $playerIdToSend = $this->device_repository->getByAttributes(['washer_id' => $input['washer_id'], 'type' => 'washer'])
+                        ->pluck('player_id')->toArray();
 
-            $deviceObjectToSend = $this->device_repository->findByAttributes(['washer_id' => $input['washer_id']]);
+                $deviceObjectToSend = $this->device_repository->findByAttributes(['washer_id' => $input['washer_id'], 'type' => 'washer']);
 
-            $heading = 'You received a rating from a customer';
-            $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' rate ' . $input['rate_number'] . ' star for your washing service';
-            $washRequestObject = Washrequest::where('id', $input['washrequest_id'])->first();
+                $heading = 'You received a rating from a customer';
+                $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' rate ' . $input['rate_number'] . ' star for your washing service';
+                $washRequestObject = Washrequest::where('id', $input['washrequest_id'])->first();
 
-            if (count($playerIdToSend) > 0) {                
+                if (count($playerIdToSend) > 0) {                
 
-                if ($deviceObjectToSend) {
-                    $createdNotifyMessage = $this->notify_repository->create([
-                        'title' => $heading,
-                        'message' => $message,
-                        'sender_id' => $currentLoggedUser->customer_id,
-                        'sender_type' => 'customer',
-                        'receiver_id' => $deviceObjectToSend->washer_id,
-                        'receiver_type' => 'washer',
-                        'message_type' => Notify::NOTIFICATION_TYPE_CAR_WASH_REQUEST
-                    ]);
+                    if ($deviceObjectToSend) {
+                        $createdNotifyMessage = $this->notify_repository->create([
+                            'title' => $heading,
+                            'message' => $message,
+                            'sender_id' => $currentLoggedUser->customer_id,
+                            'sender_type' => 'customer',
+                            'receiver_id' => $deviceObjectToSend->washer_id,
+                            'receiver_type' => 'washer',
+                            'message_type' => Notify::NOTIFICATION_TYPE_CAR_WASH_REQUEST
+                        ]);
+                    }
+                    $washRequestObject->rating;
+
+                    $extraArray['object'] = $washRequestObject->toArray();
+                    $extraArray['message'] = $createdNotifyMessage->toArray();
+
+                    /*
+                    * Send Push notification to OneSignal
+                    */                
+                    OneSignal::sendNotificationToUser(
+                        $message, 
+                        $playerIdToSend, 
+                        $heading, 
+                        $extraArray
+                    );  
+                    \Log::info('RatingController - create - Push notification success to player id: ' . print_r($playerIdToSend, true));
                 }
-                $washRequestObject->rating;
-
-                $extraArray['object'] = $washRequestObject->toArray();
-                $extraArray['message'] = $createdNotifyMessage->toArray();
-
-                /*
-                * Send Push notification to OneSignal
-                */                
-                OneSignal::sendNotificationToUser(
-                    $message, 
-                    $playerIdToSend, 
-                    $heading, 
-                    $extraArray
-                );  
-                \Log::info('RatingController - create - Push notification success to player id: ' . print_r($playerIdToSend, true));
+            } catch (\Exception $e) {
+                \Log::error('RatingController - create - Push notification error: ' . $e->getMessage());
             }
-        } catch (\Exception $e) {
-            \Log::error('RatingController - create - Push notification error: ' . $e->getMessage());
         }
         
         return $this->response->item($createdRating, $this->rating_transformer);   
