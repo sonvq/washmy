@@ -20,6 +20,6 @@ return [
     ],
     'user_no_longer_exists' => 'The user no longer exists.',
     'invalid_reset_code' => 'Invalid or expired reset code.',
-    'password_reset' => 'Password has been reset. You can now login with your new password via the handshake mobile app',
+    'password_reset' => 'Password has been reset. You can now login with your new password via the wash my car mobile app',
     'invalid_reset_type' => 'Reset link is not valid'
 ];
