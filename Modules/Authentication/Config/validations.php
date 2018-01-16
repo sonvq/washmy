@@ -25,6 +25,15 @@ return [
         ]
     ],
     
+    'api-check-forgot-password' => [
+        'rules' => [
+            'email' => 'required|email',
+        ],
+        'messages' => [
+
+        ]
+    ],
+    
     
     'api-check-washer-register' => [
         'rules' => [

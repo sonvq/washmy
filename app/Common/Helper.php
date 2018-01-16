@@ -62,6 +62,10 @@ class Helper {
     const ONLY_CUSTOMER_ROLE_ALLOWED_TITLE = 'Permission Denied';
     const ONLY_CUSTOMER_ROLE_ALLOWED_MSG = 'Only customer role allowed';
     
+    const FAIL_TO_SEND_EMAIL = 'FAIL_TO_SEND_EMAIL';  
+    const FAIL_TO_SEND_EMAIL_TITLE = 'Error message';     
+    const FAIL_TO_SEND_EMAIL_MSG = 'Server can not send email, please check with administrator';
+    
     const ONLY_WASHER_ROLE_ALLOWED = 'ONLY_WASHER_ROLE_ALLOWED';
     const ONLY_WASHER_ROLE_ALLOWED_TITLE = 'Permission Denied';
     const ONLY_WASHER_ROLE_ALLOWED_MSG = 'Only washer role allowed';
@@ -245,6 +249,9 @@ class Helper {
         return Helper::commonErrorResponse($key, $title, $message, 403);
     }
 
+    public static function internalServerErrorResponse ($key, $title, $message) {
+        return Helper::commonErrorResponse($key, $title, $message, 500);
+    }
 
     public static function commonErrorResponse (
             $messageKey = null, 

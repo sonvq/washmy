@@ -19,6 +19,7 @@ use Modules\Authentication\Repositories\WasherCustomerLoginRepository;
 use Modules\Customer\Repositories\CustomerRepository;
 use App\Common\Helper;
 use Validator;
+use Illuminate\Support\Facades\Mail;
 use Modules\Media\Services\FileService;
 use Modules\Media\Repositories\FileRepository;
 use Modules\Customer\Entities\Customer;
@@ -26,6 +27,8 @@ use Modules\Washer\Entities\Washer;
 use App\Common\FacebookWrapper;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Carbon\Carbon;
+use Modules\Authentication\Repositories\WasherCustomerForgotRepository;
+use Modules\Authentication\Entities\WasherCustomerForgot;
 
 class AuthenticationController extends BaseController
 {
@@ -38,7 +41,8 @@ class AuthenticationController extends BaseController
             WasherTransformerInterface $washerTransformerInterface,
             CustomerTransformerInterface $customerTransformerInterface,
             FileService $fileService,
-            FileRepository $fileRepository)
+            FileRepository $fileRepository,
+            WasherCustomerForgotRepository $washerCustomerForgot)
     {
         
         $this->request = $request;
@@ -49,7 +53,67 @@ class AuthenticationController extends BaseController
         $this->customer_transformer = $customerTransformerInterface;
         $this->file_repository = $fileRepository;
         $this->file_service = $fileService;
+        $this->washer_customer_forgot = $washerCustomerForgot;
     }
+    
+    public function forgotPassword() {
+        $input = $this->request->all();
+        
+        // Validate login
+        $validateType = $this->validateRequest('api-check-forgot-password', $input);
+        if ($validateType !== true) {
+            return $validateType;
+        }                
+                
+        $token  = Password::getRepository()->createNewToken();
+        
+        $emailAddress = $input['email'];
+        $washerObject = $this->washer_repository->findByAttributes(['email' => $emailAddress]);
+        
+        if ($washerObject) {
+            Mail::send('authentication::frontend.mail.mail_forgot_password', ['type' => 'washer', 'user' => $washerObject, 'token' => $token], function ($m) use ($input) {
+                $m->to($input['email'])->subject(trans('authentication::messages.forgot_email.email_title'));
+            });
+            if (Mail::failures()) {
+                return Helper::internalServerErrorResponse(Helper::FAIL_TO_SEND_EMAIL,
+                            Helper::FAIL_TO_SEND_EMAIL_TITLE,
+                            Helper::FAIL_TO_SEND_EMAIL_MSG);
+            } else {
+                // Save the token for forgot password
+                $this->washer_customer_forgot->create([
+                    'token' => $token,
+                    'washer_id' => $washerObject->id,
+                    'status' => WasherCustomerForgot::STATUS_PENDING
+                ]);
+                        
+                return $this->response->array(['data' => trans('authentication::messages.SUCCESSFUL_SEND_FORGOT_PASSWORD')]);
+            }
+        } else {
+            $customerObject = $this->customer_repository->findByAttributes(['email' => $emailAddress]);
+            if ($customerObject) {
+                Mail::send('authentication::frontend.mail.mail_forgot_password', ['type' => 'customer', 'user' => $customerObject, 'token' => $token], function ($m) use ($input) {
+                    $m->to($input['email'])->subject(trans('authentication::messages.forgot_email.email_title'));
+                });
+                if (Mail::failures()) {
+                    return Helper::internalServerErrorResponse(Helper::FAIL_TO_SEND_EMAIL,
+                                Helper::FAIL_TO_SEND_EMAIL_TITLE,
+                                Helper::FAIL_TO_SEND_EMAIL_MSG);
+                } else {
+                    // Save the token for forgot password
+                    $this->washer_customer_forgot->create([
+                        'token' => $token,
+                        'customer_id' => $customerObject->id,
+                        'status' => WasherCustomerForgot::STATUS_PENDING
+                    ]);
+
+                    return $this->response->array(['data' => trans('authentication::messages.SUCCESSFUL_SEND_FORGOT_PASSWORD')]);
+                }
+            }else{
+                return $this->response->array(['data' => trans('authentication::messages.SUCCESSFUL_SEND_FORGOT_PASSWORD')]);
+            }
+        }        
+    }
+    
     
     public function getProfileCustomer($id) {
         $currentLoggedUser = Helper::getLoggedUser();

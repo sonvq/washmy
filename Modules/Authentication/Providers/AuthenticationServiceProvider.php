@@ -12,6 +12,9 @@ use Modules\Authentication\Entities\WasherCustomerLogin;
 use Modules\Authentication\Repositories\Eloquent\EloquentWasherCustomerDeviceRepository;
 use Modules\Authentication\Entities\WasherCustomerDevice;
 
+use Modules\Authentication\Repositories\Eloquent\EloquentWasherCustomerForgotRepository;
+use Modules\Authentication\Entities\WasherCustomerForgot;
+
 class AuthenticationServiceProvider extends ServiceProvider
 {
     use CanPublishConfiguration;
@@ -68,6 +71,15 @@ class AuthenticationServiceProvider extends ServiceProvider
             function () {
                 return new EloquentWasherCustomerDeviceRepository(
                     new WasherCustomerDevice()
+                );
+            }
+        );
+        
+        $this->app->bind(
+            'Modules\Authentication\Repositories\WasherCustomerForgotRepository',
+            function () {
+                return new EloquentWasherCustomerForgotRepository(
+                    new WasherCustomerForgot()
                 );
             }
         );

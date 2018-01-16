@@ -9,6 +9,7 @@ $api->version('v1', function ($api) {
         $api->post('/register', ['uses' => 'AuthenticationController@register', 'as' => 'api.authentication.register']);
         $api->post('/login', ['uses' => 'AuthenticationController@login', 'as' => 'api.authentication.login']);
         $api->post('/facebook-login', ['uses' => 'AuthenticationController@authenticateFacebook', 'as' => 'api.authentication.authenticate.facebook']);
+        $api->get('/forgot-password', ['uses' => 'AuthenticationController@forgotPassword', 'as' => 'api.authentication.forgot.password']);
         
         $api->group(['middleware' => ['apis.frontend']], function () use ($api) {                        
             $api->get('/logout', ['uses' => 'AuthenticationController@logout', 'as' => 'api.authentication.logout']);                        
