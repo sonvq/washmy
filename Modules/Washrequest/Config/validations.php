@@ -16,7 +16,8 @@ return [
             'block_no' => 'required|max:255',
             'level' => 'required|max:255',
             'car_park_lot_no' => 'required|max:255',
-            'save_for_next_time' => 'required|in:yes,no'
+            'save_for_next_time' => 'required|in:yes,no',
+            'payment_method' => 'in:posb_paynow,dbs_paylah,ocbc_pay_anyone,cash'
         ],
         'messages' => [
             

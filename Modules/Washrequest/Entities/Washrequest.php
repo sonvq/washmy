@@ -22,7 +22,8 @@ class Washrequest extends Model
         'notes',
         'customer_id',
         'washer_id',
-        'status'
+        'status',
+        'payment_method'
     ];
     
     const USER_REQUESTING = 'user_requesting';
