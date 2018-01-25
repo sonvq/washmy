@@ -190,6 +190,39 @@ class AuthenticationController extends BaseController
         }        
     }
     
+    public function togglePushNotification() {
+        $input = $this->request->all();
+        $currentLoggedUser = Helper::getLoggedUser();
+        
+        if ($currentLoggedUser->type == 'customer') {
+            $customerObject = $currentLoggedUser->customer;
+                           
+            if ($customerObject->push_notification == 0) {
+                $customerObject->push_notification = 1;
+            } else {
+                $customerObject->push_notification = 0;
+            }
+            
+            $customerObject->save();            
+                        
+            $customerObject->token = $currentLoggedUser->token;
+            return $this->response->item($customerObject, $this->customer_transformer);
+        } else if ($currentLoggedUser->type == 'washer') {  
+            $washerObject = $currentLoggedUser->washer;
+            
+            if ($washerObject->push_notification == 0) {
+                $washerObject->push_notification = 1;
+            } else {
+                $washerObject->push_notification = 0;
+            }
+            
+            $washerObject->save();   
+            
+            $washerObject->token = $currentLoggedUser->token;
+            return $this->response->item($washerObject, $this->washer_transformer);
+        }     
+    }
+    
     public function register()
     {
         $input =  $this->request->all();        

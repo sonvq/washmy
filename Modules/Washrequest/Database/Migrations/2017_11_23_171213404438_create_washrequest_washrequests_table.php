@@ -29,6 +29,10 @@ class CreateWashrequestWashrequestsTable extends Migration
             $table->string('status')->default('user_requesting')
                 ->comment('user_requesting / user_declined / user_accept_pay / user_payment_done / user_cancel_request / user_confirm_request '
                         . '/ washer_accepted / washer_washing / washer_done ');
+            
+            $table->string('payment_method')->default('cash')
+                    ->comment('posb_paynow / dbs_paylah / ocbc_pay_anyone / cash');
+            
             $table->integer('washer_id')->unsigned()->nullable();
             // Your fields
             $table->timestamps();

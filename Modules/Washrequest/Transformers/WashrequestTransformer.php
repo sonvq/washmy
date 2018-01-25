@@ -55,6 +55,7 @@ class WashrequestTransformer extends TransformerAbstract implements WashrequestT
             'washer_id' => (int) $item->washer_id,
             'washer' => (object) $washerObject,
             'rating' => (object) $ratingObject,
+            'payment_method' => (string) $item->payment_method,
             'created_at' => (string) $item->created_at,
             'updated_at' => (string) $item->updated_at,
         ];
