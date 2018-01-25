@@ -250,10 +250,12 @@ class WashrequestController extends BaseController
                         $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' declined your wash request';
                     } else if ($input['status'] == 'user_accept_pay') {
                         $heading = 'Wash request accepted and processing payment';
-                        $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' has accepted your submission and making payment';
+//                        $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' has accepted your submission and making payment';
+                        $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' has accepted your submission, please start your washing work';
                     } else if ($input['status'] == 'user_payment_done') {
                         $heading = 'Wash request payment done';
-                        $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' has done the payment, please start your washing work';
+//                        $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' has done the payment, please start your washing work';
+                        $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' has accepted your submission, please start your washing work';
                     } else if ($input['status'] == 'user_cancel_request') {
                         $heading = 'Wash request cancelled';
                         $message = 'Customer ' . $currentLoggedUser->customer->full_name . ' has cancelled the wash request';
