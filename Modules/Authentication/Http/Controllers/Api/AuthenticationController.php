@@ -264,6 +264,9 @@ class AuthenticationController extends BaseController
                 $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $washerReturned);
             }
             
+            $logMessage = 'AuthenticationController - register - Washer register with email: ' . $input['email'] . ', device token: ' . $clientDeviceToken . ', device type: ' . $clientOS;
+            \Log::info($logMessage);
+                    
             $washerReturned->token = $token;
             return $this->response->item($washerReturned, $this->washer_transformer);
         } else {
@@ -290,6 +293,9 @@ class AuthenticationController extends BaseController
             if (!empty($clientDeviceToken) && !empty($clientOS)) {
                 $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $customerReturned);
             }
+            
+            $logMessage = 'AuthenticationController - register - Customer register with email: ' . $input['email'] . ', device token: ' . $clientDeviceToken . ', device type: ' . $clientOS;
+            \Log::info($logMessage);
             
             $customerReturned->token = $token;
             return $this->response->item($customerReturned, $this->customer_transformer);
@@ -327,6 +333,8 @@ class AuthenticationController extends BaseController
                     $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $washerObject);
                 }
 
+                $logMessage = 'AuthenticationController - Login - Washer login with email: ' . $input['email'] . ', device token: ' . $clientDeviceToken . ', device type: ' . $clientOS;
+                \Log::info($logMessage);
                 return $this->response->item($washerObject, $this->washer_transformer);
             } else {
                 return Helper::unauthorizedErrorResponse(Helper::LOGIN_FAIL,
@@ -348,6 +356,8 @@ class AuthenticationController extends BaseController
                         $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $customerObject);
                     }
                 
+                    $logMessage = 'AuthenticationController - Login - Customer login with email: ' . $input['email'] . ', device token: ' . $clientDeviceToken . ', device type: ' . $clientOS;
+                    \Log::info($logMessage);
                     return $this->response->item($customerObject, $this->customer_transformer);
                 } else {
                     return Helper::unauthorizedErrorResponse(Helper::LOGIN_FAIL,
@@ -498,6 +508,10 @@ class AuthenticationController extends BaseController
             if (!empty($clientDeviceToken) && !empty($clientOS)) {
                 $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $existingCustomer);
             }
+            
+            $logMessage = 'AuthenticationController - authenticateFacebook - Customer login with facebook_id: ' . $profile->getId() . ', device token: ' . $clientDeviceToken . ', device type: ' . $clientOS;
+            \Log::info($logMessage);
+            
             return $this->response->item($existingCustomer, $this->customer_transformer);           
         } 
         
@@ -511,6 +525,10 @@ class AuthenticationController extends BaseController
             if (!empty($clientDeviceToken) && !empty($clientOS)) {
                 $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $existingWasher);
             }
+            
+            $logMessage = 'AuthenticationController - authenticateFacebook - Washer login with facebook_id: ' . $profile->getId() . ', device token: ' . $clientDeviceToken . ', device type: ' . $clientOS;
+            \Log::info($logMessage);
+            
             return $this->response->item($existingWasher, $this->washer_transformer);
         }
         
@@ -597,6 +615,9 @@ class AuthenticationController extends BaseController
                 $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $customerReturned);
             }
             
+            $logMessage = 'AuthenticationController - authenticateFacebook - Customer register with facebook_id: ' . $profile->getId() . ', device token: ' . $clientDeviceToken . ', device type: ' . $clientOS;
+            \Log::info($logMessage);
+            
             $customerReturned->token = $token;
             return $this->response->item($customerReturned, $this->customer_transformer);
             
@@ -637,6 +658,9 @@ class AuthenticationController extends BaseController
             if (!empty($clientDeviceToken) && !empty($clientOS)) {
                 $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $washerReturned);
             }
+            
+            $logMessage = 'AuthenticationController - authenticateFacebook - Washer register with facebook_id: ' . $profile->getId() . ', device token: ' . $clientDeviceToken . ', device type: ' . $clientOS;
+            \Log::info($logMessage);
             
             $washerReturned->token = $token;
             return $this->response->item($washerReturned, $this->washer_transformer);
