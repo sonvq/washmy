@@ -431,6 +431,9 @@ class WashrequestController extends BaseController
         $expiredWashRequest = $this->wash_request_repository->updateExpiredRequest();
         
         $input = $this->request->all();
+        $clientDeviceToken = $this->request->header('DEVICE-TOKEN');
+        $clientOS = $this->request->header('DEVICE-TYPE');
+        
         $perPage = (isset($input['per_page']) && $input['per_page'] > 0) ? $input['per_page'] : 15;
         $currentLoggedUser = Helper::getLoggedUser();
         
@@ -438,11 +441,25 @@ class WashrequestController extends BaseController
             $washRequestList = $this->wash_request_repository
                     ->getWashRequestListCustomer($input, $perPage, $currentLoggedUser->customer_id);
 
+            if (!empty($clientDeviceToken) && !empty($clientOS)) {
+                $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $currentLoggedUser->customer);
+            }
+
+            $logMessage = 'WashrequestController - listWashRequest - customer email: ' . $currentLoggedUser->customer->email . ', device token: ' . $clientDeviceToken . ', device type: ' . $clientOS;
+            \Log::info($logMessage);
+                
             return $this->response->paginator($washRequestList, $this->washrequest_transformer);
         } else if ($currentLoggedUser->type == 'washer') {
             $washRequestList = $this->wash_request_repository
                     ->getWashRequestListWasher($input, $perPage, $currentLoggedUser->washer_id);
 
+            if (!empty($clientDeviceToken) && !empty($clientOS)) {
+                $this->storeUserDeviceInfo($clientDeviceToken, $clientOS, $currentLoggedUser->washer);
+            }
+
+            $logMessage = 'WashrequestController - listWashRequest - washer email: ' . $currentLoggedUser->washer->email . ', device token: ' . $clientDeviceToken . ', device type: ' . $clientOS;
+            \Log::info($logMessage);
+            
             return $this->response->paginator($washRequestList, $this->washrequest_transformer);
         }
     }
