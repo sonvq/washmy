@@ -29,9 +29,9 @@
                 alert("This is on android device but deeplink not working, deeplink = " + deeplink);
             }, 8000);
         } else if (userAgentString.indexOf("mac") > -1) {
-            alert('This is a Macbook, please open this link on mobile device');
+            console.log('This is a Macbook, please open this link on mobile device');
         } else {
-            alert('This is on Windows or Desktop Browser, please open this link on mobile device');
+            console.log('This is on Windows or Desktop Browser, please open this link on mobile device');
         }
 </script>
 </body>
