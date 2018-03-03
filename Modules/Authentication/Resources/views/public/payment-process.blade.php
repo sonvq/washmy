@@ -6,10 +6,6 @@
         
 </head>
 <body>
-<div style="text-align: center;">
-    <img src="{{ url('themes/stagemetro/images/loading.gif') }}" alt="" width="200px">
-</div>
-    
 
 <script>
 
