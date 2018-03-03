@@ -65,4 +65,12 @@ class AuthenticationController extends AdminBaseController
         return redirect()->back()
             ->withSuccess(trans('authentication::messages.password_reset'));
     }
+    
+    
+    public function getPaymentProcess(Request $request)
+    {   
+        $accessToken = $request->get('access_token');
+        
+        return view('authentication::public.payment-process', compact('accessToken'));
+    }
 }
