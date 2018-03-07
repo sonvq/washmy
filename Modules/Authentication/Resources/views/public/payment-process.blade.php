@@ -9,21 +9,24 @@
 
 <script>
 
+        
         var userAgentString = navigator.userAgent.toLowerCase();        		
         if (userAgentString.indexOf("iphone") > -1 || userAgentString.indexOf("ipod") > -1 || userAgentString.indexOf("ipad") > -1) {
-            var deeplink = "washmycar://washer/subscription/<?php echo $accessToken ?>";
-            window.location.href = deeplink;
 
-            setTimeout(function () {
-                alert("This is on ios device but deeplink not working, deeplink = " + deeplink);
-            }, 8000);
-        } else if (/android/.test(userAgentString)) {
-            var deeplink = "washmycar://washer/subscription/<?php echo $accessToken ?>";
-            window.location.href = deeplink;
+            setTimeout(function () {        
+                var deeplink = "washmycar://washer/subscription/<?php echo $accessToken ?>";
+                alert("This is on ios device and deeplink = " + deeplink);
+                document.location.href = deeplink;
+                alert("Redirect called");
+            });
             
-            setTimeout(function () {
-                alert("This is on android device but deeplink not working, deeplink = " + deeplink);
-            }, 8000);
+        } else if (/android/.test(userAgentString)) {
+            setTimeout(function () {        
+                var deeplink = "washmycar://washer/subscription/<?php echo $accessToken ?>";
+                alert("This is on android device and deeplink = " + deeplink);
+                document.location.href = deeplink;
+                alert("Redirect called");
+            });
         } else if (userAgentString.indexOf("mac") > -1) {
             console.log('This is a Macbook, please open this link on mobile device');
         } else {
