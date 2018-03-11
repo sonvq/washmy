@@ -17,10 +17,13 @@ $api->version('v1', function ($api) {
             $api->get('/get-profile-customer/{id}', ['uses' => 'AuthenticationController@getProfileCustomer', 'as' => 'api.authentication.get.profile.customer']);
             $api->get('/get-profile-washer/{id}', ['uses' => 'AuthenticationController@getProfileWasher', 'as' => 'api.authentication.get.profile.washer']);
             $api->post('/change-password', ['uses' => 'AuthenticationController@changePassword', 'as' => 'api.authentication.change.password']);
-            
+                                    
             $api->post('/toggle-push-notification', ['uses' => 'AuthenticationController@togglePushNotification', 'as' => 'api.authentication.toggle.push.notification']);
         });
-                
+        
+        $api->group(['middleware' => ['apis.frontend', 'apis.frontend.washer']], function () use ($api) { 
+            $api->post('/save-subscription-washer', ['uses' => 'AuthenticationController@saveSubscriptionWasher', 'as' => 'api.authentication.save.subscription.washer']);
+        });
         
     });
 

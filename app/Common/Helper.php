@@ -70,6 +70,9 @@ class Helper {
     const SUBSCRIPTION_REQUIRED_TITLE = 'Error message';     
     const SUBSCRIPTION_REQUIRED_MSG = 'In order to receive car wash notifications, you are required to pay a monthly subscription of $10';
     
+    const SUBSCRIPTION_ALREADY_PAID = 'SUBSCRIPTION_ALREADY_PAID';
+    const SUBSCRIPTION_ALREADY_PAID_TITLE = 'Error message';     
+    const SUBSCRIPTION_ALREADY_PAID_MSG = 'You are already paid for a monthly subscription of $10';
     
     const ONLY_WASHER_ROLE_ALLOWED = 'ONLY_WASHER_ROLE_ALLOWED';
     const ONLY_WASHER_ROLE_ALLOWED_TITLE = 'Permission Denied';

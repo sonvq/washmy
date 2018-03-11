@@ -59,8 +59,8 @@ class WasherTransformer extends TransformerAbstract implements WasherTransformer
             'token' => (string) $token,     
             'avatar' => (object) $avatar,
             'subscription_status' => (string) $item->subscription_status,
-            'subscription_start_date' => $item->subscription_start_date,
-            'subscription_end_date' => $item->subscription_end_date,
+            'subscription_start_date' => (string) $item->subscription_start_date,
+            'subscription_end_date' => (string) $item->subscription_end_date,
             'created_at' => (string) $item->created_at,
             'updated_at' => (string) $item->updated_at,
         ];

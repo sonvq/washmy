@@ -190,6 +190,36 @@ class AuthenticationController extends BaseController
         }        
     }
     
+    public function saveSubscriptionWasher() {
+        $input = $this->request->all();
+        
+        // Validate subscription washer
+        $validateSubscriptionWasher = $this->validateRequest('api-check-subscription-washer', $input);
+        if ($validateSubscriptionWasher !== true) {
+            return $validateSubscriptionWasher;
+        }    
+        
+        $currentLoggedUser = Helper::getLoggedUser();
+        $washer = $currentLoggedUser->washer;
+        if ($washer->subscription_status == Washer::SUBSCRIPTION_STATUS_UNPAID) {
+            $washer->subscription_status = Washer::SUBSCRIPTION_STATUS_PAID;
+            $today = Carbon::now();            
+            $expired_date = $today->copy()->addDays(30);
+            
+            $washer->subscription_start_date = $today;
+            $washer->subscription_end_date = $expired_date;
+            $washer->push_notification = 1;
+            $washer->save();
+            
+            return $this->response->item($washer, $this->washer_transformer);
+        } else {
+            return Helper::forbiddenErrorResponse(Helper::SUBSCRIPTION_ALREADY_PAID,
+                        Helper::SUBSCRIPTION_ALREADY_PAID_TITLE,
+                        Helper::SUBSCRIPTION_ALREADY_PAID_MSG);
+        }
+            
+    }
+    
     public function togglePushNotification() {
         $input = $this->request->all();
         $currentLoggedUser = Helper::getLoggedUser();

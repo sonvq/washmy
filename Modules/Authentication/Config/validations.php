@@ -102,5 +102,14 @@ return [
         ]
     ],
     
+    'api-check-subscription-washer' => [
+        'rules' => [
+            'access_token'          => 'required',            
+        ],
+        'messages' => [
+
+        ]
+    ]
+    
     
 ];
