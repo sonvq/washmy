@@ -18,7 +18,10 @@ class Washer extends Model
     const EMPLOYMENT_TYPE_SELF_EMPLOYED = 'self_employed';
     const EMPLOYMENT_TYPE_STUDENT = 'student';
     const EMPLOYMENT_TYPE_HOMEMAKER = 'homemaker';    
-    const ZONE_WASHER_AVATAR_IMAGE = 'WasherAvatarImage';       
+    const ZONE_WASHER_AVATAR_IMAGE = 'WasherAvatarImage'; 
+    
+    const SUBSCRIPTION_STATUS_PAID = 'paid';
+    const SUBSCRIPTION_STATUS_UNPAID = 'unpaid';
     
     protected $fillable = [
         'email',

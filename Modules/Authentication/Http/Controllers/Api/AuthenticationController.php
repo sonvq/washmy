@@ -211,7 +211,13 @@ class AuthenticationController extends BaseController
             $washerObject = $currentLoggedUser->washer;
             
             if ($washerObject->push_notification == 0) {
-                $washerObject->push_notification = 1;
+                // Check if washer already paid subscription or not
+                if ($washerObject->subscription_status == Washer::SUBSCRIPTION_STATUS_UNPAID) {
+                    return Helper::forbiddenErrorResponse(Helper::SUBSCRIPTION_REQUIRED,
+                        Helper::SUBSCRIPTION_REQUIRED_TITLE,
+                        Helper::SUBSCRIPTION_REQUIRED_MSG);
+                }                
+                $washerObject->push_notification = 1;    
             } else {
                 $washerObject->push_notification = 0;
             }

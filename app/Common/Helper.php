@@ -66,6 +66,11 @@ class Helper {
     const FAIL_TO_SEND_EMAIL_TITLE = 'Error message';     
     const FAIL_TO_SEND_EMAIL_MSG = 'Server can not send email, please check with administrator';
     
+    const SUBSCRIPTION_REQUIRED = 'SUBSCRIPTION_REQUIRED';
+    const SUBSCRIPTION_REQUIRED_TITLE = 'Error message';     
+    const SUBSCRIPTION_REQUIRED_MSG = 'In order to receive car wash notifications, you are required to pay a monthly subscription of $10';
+    
+    
     const ONLY_WASHER_ROLE_ALLOWED = 'ONLY_WASHER_ROLE_ALLOWED';
     const ONLY_WASHER_ROLE_ALLOWED_TITLE = 'Permission Denied';
     const ONLY_WASHER_ROLE_ALLOWED_MSG = 'Only washer role allowed';
