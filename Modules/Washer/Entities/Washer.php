@@ -29,7 +29,10 @@ class Washer extends Model
         'facebook_id',
         'push_notification',
         'first_time_login',
-        'type'
+        'type',
+        'subscription_status',
+        'subscription_start_date',
+        'subscription_end_date'
     ];
         
     protected $hidden = ['password'];

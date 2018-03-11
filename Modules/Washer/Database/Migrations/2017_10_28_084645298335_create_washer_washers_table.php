@@ -25,7 +25,13 @@ class CreateWasherWashersTable extends Migration
                 ->comment('value: employed/self_employed/student/homemaker for Employed/Self Employed/Student/Homemaker');
             $table->string('facebook_id')->nullable();
             
-            $table->boolean('push_notification')->default(1);
+            $table->boolean('push_notification')->default(0);       
+            
+            $table->string('subscription_status')->nullable()->default('unpaid')
+                    ->comment('unpaid / paid');
+            $table->timestamp('subscription_start_date')->nullable();
+            $table->timestamp('subscription_end_date')->nullable();
+            
             $table->boolean('first_time_login')->default(1);            
             
             // string type required to differentiate the account type is member or agent when login
