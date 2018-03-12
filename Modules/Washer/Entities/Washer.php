@@ -35,7 +35,8 @@ class Washer extends Model
         'type',
         'subscription_status',
         'subscription_start_date',
-        'subscription_end_date'
+        'subscription_end_date',
+        'ocbc_access_token'
     ];
         
     protected $hidden = ['password'];
@@ -54,5 +55,10 @@ class Washer extends Model
     public function wash_request()
     {
         return $this->hasMany(Washrequest::class, 'washer_id', 'id');
+    }
+    
+    public function pending_wash_request() {
+        return $this->hasMany(Washrequest::class, 'washer_id', 'id')
+                ->where('status', Washrequest::WASHER_WASHING);
     }
 }

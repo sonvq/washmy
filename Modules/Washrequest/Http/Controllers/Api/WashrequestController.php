@@ -78,6 +78,15 @@ class WashrequestController extends BaseController
         if (empty($washRequest->washer_id)) {
             if ($washRequest->status == Washrequest::USER_REQUESTING) {            
                 $currentLoggedUser = Helper::getLoggedUser();
+                
+                $countPendingDoneRequest = Washrequest::where('washer_id', $currentLoggedUser->washer_id)
+                        ->where('status', Washrequest::WASHER_WASHING)
+                        ->count();
+                if ($countPendingDoneRequest > 0) {
+                    return Helper::badRequestErrorResponse(Helper::WASH_REQUEST_IN_PROGRESS,
+                        Helper::WASH_REQUEST_IN_PROGRESS_TITLE,
+                        Helper::WASH_REQUEST_IN_PROGRESS_MSG);
+                }
                 $washRequest->washer_id = $currentLoggedUser->washer_id;
                 $washRequest->status = Washrequest::WASHER_ACCEPTED;
                 $washRequest->save();
@@ -343,15 +352,19 @@ class WashrequestController extends BaseController
             // Send push notification again
             // Send push notification for all washer
             try {
-                $washerTurnOffPush = Washer::where('push_notification', 0)->pluck('id')->toArray();
+                $washerTurnOffPushAndWashingRequest = Washer::where(function($q){
+                    $q->has('pending_wash_request', '>', 0);
+                    $q->orWhere('push_notification', 0);
+                })->pluck('id')->toArray(); 
+                
                 
                 $playerIdToSend = WasherCustomerDevice::where('type', 'washer')
-                        ->whereNotIn('washer_id', $washerTurnOffPush)
+                        ->whereNotIn('washer_id', $washerTurnOffPushAndWashingRequest)
                         ->pluck('player_id')->toArray();
 
                 $deviceObjectToSend = WasherCustomerDevice::groupBy('washer_id')
                         ->where('type', 'washer')
-                        ->whereNotIn('washer_id', $washerTurnOffPush)
+                        ->whereNotIn('washer_id', $washerTurnOffPushAndWashingRequest)
                         ->get();       
 
                 $heading = 'New Car Wash Request from ' . $currentLoggedUser->customer->full_name;
@@ -521,17 +534,20 @@ class WashrequestController extends BaseController
         
         $washRequestReturn = $this->wash_request_repository->find($createdWashRequest->id);
         
-        // Send push notification for all washer
+        // Send push notification for all washer that do not have pending wash request
         try {
-            $washerTurnOffPush = Washer::where('push_notification', 0)->pluck('id')->toArray();
+            $washerTurnOffPushAndWashingRequest = Washer::where(function($q){
+                $q->has('pending_wash_request', '>', 0);
+                $q->orWhere('push_notification', 0);
+            })->pluck('id')->toArray();            
             
             $playerIdToSend = WasherCustomerDevice::where('type', 'washer')
-                    ->whereNotIn('washer_id', $washerTurnOffPush)
+                    ->whereNotIn('washer_id', $washerTurnOffPushAndWashingRequest)
                     ->pluck('player_id')->toArray();
 
             $deviceObjectToSend = WasherCustomerDevice::groupBy('washer_id')
                     ->where('type', 'washer')
-                    ->whereNotIn('washer_id', $washerTurnOffPush)
+                    ->whereNotIn('washer_id', $washerTurnOffPushAndWashingRequest)
                     ->get();                            
                                
             $heading = 'New Car Wash Request from ' . $currentLoggedUser->customer->full_name;

@@ -82,6 +82,10 @@ class Helper {
     const WASH_REQUEST_NOT_FOUND_TITLE = 'Wash request not found';     
     const WASH_REQUEST_NOT_FOUND_MSG = 'Wash request does not exist or has been deleted';
     
+    const WASH_REQUEST_IN_PROGRESS = 'WASH_REQUEST_IN_PROGRESS';
+    const WASH_REQUEST_IN_PROGRESS_TITLE = 'Error message';     
+    const WASH_REQUEST_IN_PROGRESS_MSG = 'There is a wash request till in progress, please complete that request first before accepting new wash request';
+    
     const NOT_OWNER_OF_REQUEST = 'NOT_OWNER_OF_REQUEST';
     const NOT_OWNER_OF_REQUEST_TITLE = 'Error message';     
     const NOT_OWNER_OF_REQUEST_MSG = 'Only owner of this wash request allowed';

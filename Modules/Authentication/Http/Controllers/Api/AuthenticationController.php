@@ -209,6 +209,7 @@ class AuthenticationController extends BaseController
             $washer->subscription_start_date = $today;
             $washer->subscription_end_date = $expired_date;
             $washer->push_notification = 1;
+            $washer->ocbc_access_token = $input['access_token'];
             $washer->save();
             
             return $this->response->item($washer, $this->washer_transformer);

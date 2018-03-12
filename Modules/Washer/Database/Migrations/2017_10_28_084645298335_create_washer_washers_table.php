@@ -32,6 +32,8 @@ class CreateWasherWashersTable extends Migration
             $table->timestamp('subscription_start_date')->nullable();
             $table->timestamp('subscription_end_date')->nullable();
             
+            $table->string('ocbc_access_token')->nullable();
+            
             $table->boolean('first_time_login')->default(1);            
             
             // string type required to differentiate the account type is member or agent when login
