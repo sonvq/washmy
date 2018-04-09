@@ -20,17 +20,17 @@
 
                 setTimeout(function () {        
                     var deeplink = "washmycar://washer/subscription/" + access_token;
-                    alert("This is on ios device and deeplink = " + deeplink);
+                    console.log("This is on ios device and deeplink = " + deeplink);
                     document.location.href = deeplink;
-                    alert("Redirect called");
+                    console.log("Redirect called");
                 });
 
             } else if (/android/.test(userAgentString)) {
                 setTimeout(function () {        
                     var deeplink = "washmycar://washer/subscription/" + access_token;
-                    alert("This is on android device and deeplink = " + deeplink);
+                    console.log("This is on android device and deeplink = " + deeplink);
                     document.location.href = deeplink;
-                    alert("Redirect called");
+                    console.log("Redirect called");
                 });
             } else if (userAgentString.indexOf("mac") > -1) {
                 console.log('This is a Macbook, please open this link on mobile device');
