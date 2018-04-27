@@ -29,6 +29,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Carbon\Carbon;
 use Modules\Authentication\Repositories\WasherCustomerForgotRepository;
 use Modules\Authentication\Entities\WasherCustomerForgot;
+use Modules\Subscription\Entities\Subscription;
+use Modules\Subscription\Repositories\SubscriptionRepository;
 
 class AuthenticationController extends BaseController
 {
@@ -42,7 +44,8 @@ class AuthenticationController extends BaseController
             CustomerTransformerInterface $customerTransformerInterface,
             FileService $fileService,
             FileRepository $fileRepository,
-            WasherCustomerForgotRepository $washerCustomerForgot)
+            WasherCustomerForgotRepository $washerCustomerForgot,
+            SubscriptionRepository $subscriptionRepository)
     {
         
         $this->request = $request;
@@ -54,6 +57,7 @@ class AuthenticationController extends BaseController
         $this->file_repository = $fileRepository;
         $this->file_service = $fileService;
         $this->washer_customer_forgot = $washerCustomerForgot;
+        $this->subscription_repository = $subscriptionRepository;
     }
     
     public function forgotPassword() {
@@ -211,6 +215,16 @@ class AuthenticationController extends BaseController
             $washer->push_notification = 1;
             $washer->ocbc_access_token = $input['access_token'];
             $washer->save();
+            
+            // Save Washer subscription history
+            $accessToken = $input['access_token'];
+            $subscription = $this->subscription_repository->create([
+                'washer_id' => $washer->id,
+                'subscription_start_date' => $today,
+                'subscription_end_date' => $expired_date,
+                'ocbc_access_token' => $accessToken
+            ]);
+            
             
             return $this->response->item($washer, $this->washer_transformer);
         } else {
