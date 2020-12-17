@@ -15,7 +15,7 @@
     "bootstrap": "~3.3.4",
     "clipboard": "~1.5.10",
     "cross-env": "^5.0.1",
-    "datatables.net": "~1.10.10",
+    "datatables.net": "~1.10.22",
     "datatables.net-bs": "~1.10.10",
     "font-awesome": ">=4.6",
     "gridstack": ">=0.2.2",
